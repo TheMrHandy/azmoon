@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سامانه آزمون آنلاین هوشمند و جامع</title>
+  
+  <!-- فونت Vazirmatn و کتابخانه‌های استاندارد -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #4338ca;
+      --primary-hover: #3730a3;
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      --secondary: #0891b2;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --dark: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --border: #e2e8f0;
+      --card-bg: rgba(255, 255, 255, 0.98);
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 20px 35px -10px rgba(79, 70, 229, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0f4ff 0%, #eef2f6 50%, #faf5ff 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      user-select: none; /* محافظت امنیتی در برابر کپی متن سوالات */
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: var(--primary-gradient);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 20px;
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--dark);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.76rem;
+      color: var(--slate-600);
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .user-badge .role-pill {
+      background: var(--primary);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    .btn-logout {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: #fecaca;
+    }
+
+    .view-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(8px);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--slate-800);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--slate-700);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--slate-50);
+      border-color: #cbd5e1;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      border-radius: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      outline: none;
+      background: white;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media(max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* صفحه لاگین تمیز بدون هیچ نمایش رمزی */
+    #login-view {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 140px);
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 24px;
+      padding: 42px 34px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.15);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 72px;
+      height: 72px;
+      background: var(--primary-gradient);
+      color: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      margin: 0 auto 20px auto;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+    }
+
+    .login-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      font-size: 0.85rem;
+      color: var(--slate-600);
+      margin-bottom: 28px;
+    }
+
+    /* پنل مدیریت */
+    .admin-nav {
+      display: flex;
+      gap: 10px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+
+    .admin-tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--slate-600);
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .admin-tab-btn.active {
+      background: #e0e7ff;
+      color: var(--primary);
+    }
+
+    .lesson-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .exam-card-item {
+      background: white;
+      border-radius: 14px;
+      padding: 18px 22px;
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    .exam-card-item:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    }
+
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-inactive { background: #f1f5f9; color: #475569; }
+
+    /* قوانین قبل آزمون */
+    .rules-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 34px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .alert-danger-box {
+      background: #fef2f2;
+      border: 1.5px solid #fee2e2;
+      border-right: 5px solid #ef4444;
+      padding: 18px;
+      border-radius: 12px;
+      margin: 20px 0;
+      color: #991b1b;
+      font-size: 0.92rem;
+      line-height: 1.9;
+    }
+
+    .alert-box {
+      background: #fffbeb;
+      border: 1.5px solid #fef3c7;
+      border-right: 5px solid #f59e0b;
+      padding: 16px;
+      border-radius: 12px;
+      margin: 18px 0;
+      color: #92400e;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    /* محیط آزمون */
+    .exam-workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .exam-topbar {
+      background: white;
+      border-radius: 16px;
+      padding: 14px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      position: sticky;
+      top: 75px;
+      z-index: 90;
+    }
+
+    .timer-display {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--primary);
+      background: #eef2ff;
+      padding: 6px 18px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 1px;
+    }
+    .timer-urgent {
+      background: #fee2e2 !important;
+      color: #dc2626 !important;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .exam-split {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 20px;
+      min-height: 720px;
+    }
+
+    @media(max-width: 992px) {
+      .exam-split { grid-template-columns: 1fr; }
+    }
+
+    .pdf-viewer-container {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .pdf-viewer-header {
+      background: #f8fafc;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pdf-frame {
+      width: 100%;
+      height: 740px;
+      border: none;
+      background: #525659;
+    }
+
+    .omr-sheet-container {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+      max-height: 820px;
+      overflow-y: auto;
+    }
+
+    .omr-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .omr-question-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #edf2f7;
+      transition: background 0.15s;
+    }
+    .omr-question-row:hover {
+      background: #f1f5f9;
+    }
+
+    .omr-q-num {
+      font-weight: 700;
+      font-size: 0.95rem;
+      min-width: 50px;
+      color: var(--slate-700);
+    }
+
+    .omr-bubble-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .bubble-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      background: white;
+      color: var(--slate-700);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .bubble-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .bubble-btn.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+    }
+
+    .clear-q-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 4px;
+    }
+    .clear-q-btn:hover {
+      color: #dc2626;
+    }
+
+    /* کارنامه */
+    #report-to-export {
+      background: white;
+      border-radius: 20px;
+      padding: 34px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .report-header-banner {
+      background: linear-gradient(135deg, #3730a3, #4f46e5);
+      color: white;
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .stat-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .stat-card {
+      background: var(--slate-50);
+      border-radius: 14px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--dark);
+      margin-top: 4px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    table.custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+    }
+    table.custom-table th {
+      background: #f1f5f9;
+      color: var(--slate-700);
+      font-weight: 700;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      border-bottom: 2px solid var(--border);
+    }
+    table.custom-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9rem;
+    }
+
+    .percent-bar-bg {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .percent-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+      border-radius: 99px;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--dark);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 99px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 9999;
+      opacity: 0;
+    }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- هدر سامانه -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">Azm</div>
+      <div>
+        <div class="brand-title">سامانه هوشمند آزمون‌های جامع آنلاین</div>
+        <div class="brand-subtitle">ارزیابی تخصصی، تفکیک سرفصل‌ها و امنیت چندلایه</div>
+      </div>
+    </div>
+
+    <div id="header-user-area" class="hidden">
+      <div class="user-badge">
+        <span id="current-user-role-badge" class="role-pill">دانش‌آموز</span>
+        <span id="current-user-name" style="font-weight: 700; font-size: 0.9rem;">STI</span>
+        <button class="btn-logout" onclick="logout()">خروج</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="view-container">
+
+    <!-- ۱. صفحه ورود کاملاً استاندارد و محرمانه (بدون نمایش رمزها) -->
+    <div id="login-view">
+      <div class="login-card">
+        <div class="login-logo">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <h1 class="login-title">ورود به سامانه سنجش</h1>
+        <p class="login-subtitle">لطفاً شناسه و رمز عبور اختصاصی خود را وارد فرمایید</p>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <div class="form-group" style="text-align: right;">
+            <label>شناسه کاربری</label>
+            <input type="text" id="login-username" class="form-control" placeholder="شناسه کاربری" required autofocus autocomplete="off">
+          </div>
+          <div class="form-group" style="text-align: right;">
+            <label>رمز عبور</label>
+            <input type="password" id="login-password" class="form-control" placeholder="رمز عبور" required autocomplete="off">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; margin-top: 10px;">
+            ورود به آزمون
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ۲. پنل مدیریت استاد / مدیر آزمون (qwerty) -->
+    <div id="admin-view" class="hidden">
+      <div class="admin-nav">
+        <button class="admin-tab-btn active" onclick="switchAdminTab('exams')">📋 لیست و وضعیت آزمون‌ها</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('new-exam')">➕ تعریف و آپلود آزمون جدید</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('reports')">📊 کارنامه‌ها، نمودار و مجوز مجدد</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('settings')">⚙️ همگام‌سازی و خروجی گیت‌هاب</button>
+      </div>
+
+      <!-- تب ۱: لیست آزمون‌ها -->
+      <div id="admin-tab-exams">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="card-title" style="margin-bottom: 0; border: none;">آزمون‌های فعال در سامانه</h2>
+            <button class="btn btn-primary btn-sm" onclick="switchAdminTab('new-exam')">+ افزودن آزمون جدید</button>
+          </div>
+          <div id="admin-exams-list"></div>
+        </div>
+      </div>
+
+      <!-- تب ۲: ساخت و آپلود آزمون با تفکیک دروس -->
+      <div id="admin-tab-new-exam" class="hidden">
+        <div class="card">
+          <h2 class="card-title">طراحی و آپلود آزمون با PDF و تفکیک دروس</h2>
+          <form id="create-exam-form" onsubmit="handleCreateExam(event)">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>عنوان آزمون</label>
+                <input type="text" id="exam-title" class="form-control" placeholder="مثال: آزمون مرحله ۲ شبیه‌ساز کنکور" required>
+              </div>
+              <div class="form-group">
+                <label>مدت زمان آزمون (دقیقه)</label>
+                <input type="number" id="exam-duration" class="form-control" value="30" min="1" max="300" required>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>تعداد کل سوالات</label>
+                <input type="number" id="exam-qcount" class="form-control" value="10" min="1" max="200" onchange="generateKeyInputs()" required>
+              </div>
+              <div class="form-group">
+                <label>قانون نمره منفی</label>
+                <select id="exam-negative-marking" class="form-control">
+                  <option value="1">بله (هر پاسخ غلط یک سوم نمره منفی دارد)</option>
+                  <option value="0">خیر (بدون نمره منفی)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>فایل PDF دفترچه سوالات (آپلود مستقیم یا لینک):</label>
+              <input type="file" id="exam-pdf-file" accept="application/pdf" class="form-control" onchange="handlePdfFileUpload(event)">
+              <div style="margin-top: 8px;">
+                <span style="font-size: 0.8rem; color: var(--slate-600);">یا پیوند اینترنتی مستقیم به فایل PDF:</span>
+                <input type="url" id="exam-pdf-url" class="form-control" placeholder="https://domain.com/exam.pdf" style="margin-top: 4px;">
+              </div>
+              <div id="pdf-upload-status" style="margin-top: 6px; font-size: 0.82rem; color: var(--success); font-weight: 600;"></div>
+            </div>
+
+            <!-- تفکیک دروس -->
+            <div style="margin: 24px 0; border: 1px dashed var(--border); padding: 18px; border-radius: 12px; background: #fafafa;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <label style="font-weight: 800; color: var(--slate-800);">تفکیک سوالات به ازای هر درس (برای محاسبه درصدهای تفکیکی):</label>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addLessonRow()">+ افزودن درس دیگر</button>
+              </div>
+              <div id="lessons-container"></div>
+            </div>
+
+            <!-- کلید گزینه‌ها (رمزنگاری شده در سمت کلاینت) -->
+            <div class="form-group">
+              <label>کلید پاسخ‌ها (گزینه صحیح هر سوال):</label>
+              <div id="answer-keys-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; padding: 12px; background: white; border: 1px solid var(--border); border-radius: 12px;"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 14px;">ذخیره و فعال‌سازی آزمون</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- تب ۳: کارنامه‌ها، نمودار مقایسه‌ای و فیلتر کاربر -->
+      <div id="admin-tab-reports" class="hidden">
+        <div class="card">
+          <h2 class="card-title">بررسی کارنامه‌ها، نمودار پیشرفت و سوابق شرکت‌کنندگان</h2>
+          
+          <div class="grid-2" style="margin-bottom: 20px;">
+            <div class="form-group">
+              <label>انتخاب دانش‌آموز / کاربر مورد نظر:</label>
+              <select id="admin-filter-user" class="form-control" onchange="renderAdminReports()">
+                <option value="ALL">همه کاربران</option>
+                <option value="STI">دانش‌آموز اصلی (STI)</option>
+                <option value="T">کاربر آزمایشی (T)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>فیلتر بر اساس آزمون:</label>
+              <select id="admin-filter-exam" class="form-control" onchange="renderAdminReports()">
+                <option value="ALL">همه آزمون‌ها</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin: 20px 0; background: white; padding: 20px; border-radius: 14px; border: 1px solid var(--border);">
+            <h3 style="font-size: 1rem; margin-bottom: 12px; font-weight: 700; color: var(--slate-700);">📈 نمودار مقایسه‌ای درصدهای کسب شده در آزمون‌ها:</h3>
+            <div style="height: 280px; position: relative;">
+              <canvas id="admin-progress-chart"></canvas>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;">سوابق آزمون‌ها و گزینه‌های مدیریت دسترسی:</h3>
+            <div id="admin-submissions-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- تب ۴: تنظیمات همگام‌سازی، بکاپ و ایمیل -->
+      <div id="admin-tab-settings" class="hidden">
+        <div class="card">
+          <h2 class="card-title">همگام‌سازی آزمون‌ها و ارسال خودکار ایمیل</h2>
+          
+          <div class="alert-box">
+            اطلاعات کارنامه به طور خودکار آماده و جهت ارسال به ایمیل اعلام شده <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="13747b7c7f727e7a72252a2153747e727a7f3d707c7e">[email&#160;protected]</a></strong> پردازش می‌شود.
+          </div>
+
+          <div style="margin-top: 20px; background: #f8fafc; padding: 20px; border-radius: 14px; border: 1px solid var(--border);">
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">💾 خروجی پشتیبان و انتقال آزمون‌ها به دیگر دستگاه‌ها:</h3>
+            <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.9; margin-bottom: 14px;">
+              اگر آزمونی را در رایانه خود طراحی کردید و مایلید در هاست گیت‌هاب نیز همیشه ذخیره و پیش‌فرض بماند، با زدن دکمه زیر فایل خروجی را بگیرید و یا در کامپیوتر دیگر با یک کلیک بارگذاری کنید:
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" onclick="exportDataJson()">📥 دانلود فایل ذخیره آزمون‌ها (JSON)</button>
+              <button class="btn btn-secondary btn-sm" onclick="triggerImportJson()">📤 بارگذاری فایل در سامانه</button>
+              <input type="file" id="import-json-file" accept=".json" style="display: none;" onchange="importDataJson(event)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ۳. داشبورد و فهرست آزمون‌های دانش‌آموز (STI و T) -->
+    <div id="student-view" class="hidden">
+      <div id="student-exams-list-container">
+        <div class="card">
+          <h2 class="card-title">آزمون‌های در دسترس</h2>
+          <div id="student-exams-list"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">📊 کارنامه‌ها و نمودار وضعیت شخصی من</h2>
+          <div style="height: 250px; position: relative; margin-bottom: 20px;">
+            <canvas id="student-progress-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- برگه ضوابط قبل از شروع آزمون -->
+      <div id="student-rules-modal" class="hidden">
+        <div class="rules-card">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <span style="background: #eef2ff; color: var(--primary); padding: 6px 16px; border-radius: 99px; font-weight: 800; font-size: 0.85rem;">دستورالعمل سنجش و ارزشیابی</span>
+            <h2 id="rules-exam-title" style="margin-top: 10px; font-size: 1.4rem;">عنوان آزمون</h2>
+          </div>
+
+          <div class="alert-danger-box">
+            <strong>⚠️ نکات بسیار مهم انضباطی و شرایط برگزاری:</strong>
+            <ul style="margin-right: 20px; margin-top: 8px;">
+              <li>این آزمون تک‌نوبتی بوده و شما <strong>فقط یک بار</strong> فرصت شرکت در آن را دارید. پس از پایان، امکان ورود مجدد وجود ندارد.</li>
+              <li>هرگونه تلاش برای باز کردن برگه‌های متفرقه یا تقسیم صفحه ثبت می‌گردد.</li>
+              <li>فایل PDF دفترچه سوالات در کادر مشخص شده کنار پاسخ‌برگ تعبیه شده است و همچنین می‌توانید از دکمه اختصاصی پنجره کمکی آزمون استفاده کنید.</li>
+              <li>به ازای هر پاسخ نادرست یک سوم نمره منفی لحاظ می‌شود؛ سوالاتی که بلد نیستید را بی‌پاسخ بگذارید.</li>
+            </ul>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border);">
+            <div>
+              <span style="font-size: 0.9rem; color: var(--slate-600);">مدت زمان آزمون: </span>
+              <strong id="rules-exam-duration" style="color: var(--primary);">۳۰ دقیقه</strong>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary" onclick="backToStudentDashboard()">بازگشت</button>
+              <button class="btn btn-primary" onclick="beginExam()">متوجه شدم؛ ورود به آزمون</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ۴. محیط برگزاری آزمون (نمایش همزمان PDF و پاسخ‌برگ OMR) -->
+    <div id="exam-taking-view" class="hidden">
+      <div class="exam-workspace">
+        <div class="exam-topbar">
+          <div>
+            <h3 id="exam-taking-title" style="font-size: 1.15rem; font-weight: 800; color: var(--dark);">عنوان آزمون</h3>
+            <span style="font-size: 0.82rem; color: var(--slate-600);">کاربر آزمون‌دهنده: <b id="taking-user-name">STI</b></span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div class="timer-display" id="exam-timer-box">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span id="exam-timer">00:00</span>
+            </div>
+            <button class="btn btn-danger" onclick="confirmFinishExam()">اتمام و ثبت پاسخ‌برگ</button>
+          </div>
+        </div>
+
+        <div class="exam-split">
+          <!-- نمایشگر دفترچه سوالات PDF -->
+          <div class="pdf-viewer-container">
+            <div class="pdf-viewer-header">
+              <span style="font-weight: 700; font-size: 0.9rem; color: var(--slate-700);">📄 دفترچه سوالات آزمون</span>
+              <button class="btn btn-secondary btn-sm" onclick="openPdfInControlledWindow()">
+                باز کردن در پنجره کمکی آزمون ↗
+              </button>
+            </div>
+            <div id="pdf-container-inner" style="flex: 1; min-height: 650px; background: #e2e8f0; display: flex; align-items: center; justify-content: center;">
+              <iframe id="pdf-iframe" class="pdf-frame" src=""></iframe>
+            </div>
+          </div>
+
+          <!-- پاسخ‌برگ چهارگزینه‌ای دیجیتال -->
+          <div class="omr-sheet-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
+              <h4 style="font-weight: 800; font-size: 1.05rem;">پاسخ‌برگ استاندارد</h4>
+              <span id="answered-count-badge" style="background: #e0e7ff; color: var(--primary); padding: 4px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 700;">۰ از ۱۰ پاسخ داده شده</span>
+            </div>
+
+            <div class="omr-grid" id="omr-questions-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ۵. کارنامه تفکیکی شکیل و صدور PDF -->
+    <div id="report-view" class="hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <button class="btn btn-secondary" onclick="backFromReport()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          بازگشت به پنل
+        </button>
+        <button class="btn btn-primary" onclick="exportReportToPdf()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          دریافت کارنامه استاندارد بصورت PDF
+        </button>
+      </div>
+
+      <div id="report-to-export">
+        <div class="report-header-banner">
+          <div>
+            <span style="font-size: 0.85rem; opacity: 0.9;">کارنامه رسمی سنجش و ارزیابی تحصیلی</span>
+            <h1 id="rep-exam-title" style="font-size: 1.6rem; font-weight: 900; margin-top: 4px;">عنوان آزمون</h1>
+            <p id="rep-student-meta" style="font-size: 0.9rem; margin-top: 6px; opacity: 0.95;">دانش‌آموز: STI | تاریخ: ۱۴۰۳/۰۷/۰۱</p>
+          </div>
+          <div style="text-align: left; background: rgba(255,255,255,0.15); padding: 14px 20px; border-radius: 12px; backdrop-filter: blur(8px);">
+            <div style="font-size: 0.8rem;">درصد کل تراز شده</div>
+            <div id="rep-total-percent" style="font-size: 2.2rem; font-weight: 900;">0%</div>
+          </div>
+        </div>
+
+        <div class="stat-cards-grid">
+          <div class="stat-card">
+            <span style="color: var(--slate-600); font-size: 0.85rem;">کل سوالات</span>
+            <div class="stat-val" id="rep-stat-total">0</div>
+          </div>
+          <div class="stat-card">
+            <span style="color: #10b981; font-size: 0.85rem;">پاسخ‌های صحیح</span>
+            <div class="stat-val" style="color: #10b981;" id="rep-stat-correct">0</div>
+          </div>
+          <div class="stat-card">
+            <span style="color: #ef4444; font-size: 0.85rem;">پاسخ‌های نادرست</span>
+            <div class="stat-val" style="color: #ef4444;" id="rep-stat-wrong">0</div>
+          </div>
+          <div class="stat-card">
+            <span style="color: #94a3b8; font-size: 0.85rem;">نزده / سفید</span>
+            <div class="stat-val" style="color: #64748b;" id="rep-stat-unanswered">0</div>
+          </div>
+        </div>
+
+        <!-- جدول تفکیک عملکرد دروس -->
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin: 24px 0 12px 0;">📊 تحلیل و عملکرد به تفکیک دروس و سرفصل‌ها:</h3>
+        <div class="table-responsive">
+          <table class="custom-table" id="rep-lessons-table">
+            <thead>
+              <tr>
+                <th>نام درس / مبحث</th>
+                <th>تعداد سوال</th>
+                <th>صحیح</th>
+                <th>غلط</th>
+                <th>سفید</th>
+                <th>درصد با نمره منفی</th>
+                <th>نمودار تسلط</th>
+              </tr>
+            </thead>
+            <tbody id="rep-lessons-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- وضعیت گزینه‌های هر سوال -->
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin: 28px 0 12px 0;">📋 وضعیت پاسخگویی به هر سوال:</h3>
+        <div id="rep-questions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;"></div>
+
+        <div style="margin-top: 30px; padding: 18px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--border); font-size: 0.85rem; color: var(--slate-600); line-height: 1.8;">
+          <strong>توضیحات سیستم نمره‌دهی:</strong>
+          درصد هر درس با فرمول مصوب سازمان سنجش <code>[(صحیح × ۳) - غلط] ÷ (کل سوالات درس × ۳) × ۱۰۰</code> محاسبه شده است. فایل پاسخ تشریحی جامع به طور جداگانه توسط استاد ارسال خواهد شد.
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="toast">پیام اطلاع‌رسانی</div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    /* ==========================================================
+       امنیت چندلایه: مسدودسازی F12، Inspect و راست‌کلیک هوشمند
+       ========================================================== */
+    document.addEventListener('contextmenu', function(e) {
+      // فقط در صورتی که کاربر روی اینپوت تایپ نمی‌کند راست‌کلیک مسدود شود
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      // غیرفعال کردن کلیدهای میانبر Inspect و Developer Tools
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    /* ==========================================================
+       رمزنگاری ساده داخلی برای جلوگیری از افشای کلیدها به ربات‌ها
+       ========================================================== */
+    function encKey(num) { return (num * 7 + 13).toString(16); }
+    function decKey(hex) { return (parseInt(hex, 16) - 13) / 7; }
+
+    /* ==========================================================
+       داده‌های پیش‌فرض سامانه
+       ========================================================== */
+    const STORAGE_KEY_EXAMS = 'azm_exams_db_v3';
+    const STORAGE_KEY_SUBMISSIONS = 'azm_submissions_db_v3';
+
+    const DEFAULT_SAMPLE_EXAM = {
+      id: 'exam_sample_101',
+      title: 'آزمون جامع شبیه‌ساز کنکور و پیش‌نوبت',
+      durationMinutes: 20,
+      hasNegativeMarking: true,
+      pdfUrl: '',
+      isActive: true,
+      questionsCount: 10,
+      lessons: [
+        { name: 'ریاضی و هندسه', fromQ: 1, toQ: 3 },
+        { name: 'فیزیک', fromQ: 4, toQ: 6 },
+        { name: 'شیمی و علوم تجربی', fromQ: 7, toQ: 10 }
+      ],
+      keys: { 1: 2, 2: 4, 3: 1, 4: 3, 5: 2, 6: 4, 7: 1, 8: 3, 9: 2, 10: 4 }
+    };
+
+    // کاربران سیستم: STI (دانش‌آموز اصلی)، T (تستی برای خودتان)، qwerty (مدیر آزمون)
+    const USERS = {
+      'STI': { pass: '1234', role: 'student', name: 'دانش‌آموز STI' },
+      'T': { pass: 'T', role: 'student', name: 'کاربر آزمایشی (T)' },
+      'qwerty': { pass: '1234', role: 'admin', name: 'استاد / مدیر آزمون' }
+    };
+
+    let currentUser = null;
+    let currentExam = null;
+    let timerInterval = null;
+    let remainingSeconds = 0;
+    let studentAnswers = {};
+    let isHelperWindowActive = false;
+    let adminProgressChart = null;
+    let studentProgressChart = null;
+
+    function getExamsDB() {
+      try {
+        const d = localStorage.getItem(STORAGE_KEY_EXAMS);
+        if (d) return JSON.parse(d);
+      } catch (e) {}
+      const initList = [DEFAULT_SAMPLE_EXAM];
+      saveExamsDB(initList);
+      return initList;
+    }
+
+    function saveExamsDB(exams) {
+      try {
+        localStorage.setItem(STORAGE_KEY_EXAMS, JSON.stringify(exams));
+      } catch (e) {}
+    }
+
+    function getSubmissionsDB() {
+      try {
+        const d = localStorage.getItem(STORAGE_KEY_SUBMISSIONS);
+        if (d) return JSON.parse(d);
+      } catch (e) {}
+      return [];
+    }
+
+    function saveSubmissionsDB(subs) {
+      try {
+        localStorage.setItem(STORAGE_KEY_SUBMISSIONS, JSON.stringify(subs));
+      } catch (e) {}
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => { t.classList.remove('show'); }, 3500);
+    }
+
+    /* ورود امن به سامانه */
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('login-username').value.trim();
+      const p = document.getElementById('login-password').value.trim();
+
+      if (USERS[u] && USERS[u].pass === p) {
+        currentUser = {
+          username: u,
+          role: USERS[u].role,
+          name: USERS[u].name
+        };
+        document.getElementById('header-user-area').classList.remove('hidden');
+        document.getElementById('current-user-name').innerText = currentUser.name;
+        document.getElementById('current-user-role-badge').innerText = currentUser.role === 'admin' ? 'مدیر' : 'دانش‌پژوه';
+        
+        document.getElementById('login-view').classList.add('hidden');
+
+        if (currentUser.role === 'admin') {
+          showAdminPanel();
+        } else {
+          showStudentDashboard();
+        }
+        showToast('ورود با موفقیت انجام شد.');
+      } else {
+        alert('شناسه کاربری یا رمز عبور نامعتبر است. لطفاً دقت فرمایید.');
+      }
+    }
+
+    function logout() {
+      if (timerInterval) {
+        if (!confirm('آیا مایل به خروج هستید؟ آزمون جاری شما بسته خواهد شد.')) return;
+        clearInterval(timerInterval);
+      }
+      currentUser = null;
+      document.getElementById('header-user-area').classList.add('hidden');
+      document.getElementById('admin-view').classList.add('hidden');
+      document.getElementById('student-view').classList.add('hidden');
+      document.getElementById('exam-taking-view').classList.add('hidden');
+      document.getElementById('report-view').classList.add('hidden');
+      document.getElementById('login-view').classList.remove('hidden');
+      document.getElementById('login-form').reset();
+    }
+
+    /* ==========================================================
+       داشبورد و پنل مدیریت (Admin)
+       ========================================================== */
+    function showAdminPanel() {
+      document.getElementById('admin-view').classList.remove('hidden');
+      document.getElementById('student-view').classList.add('hidden');
+      document.getElementById('exam-taking-view').classList.add('hidden');
+      document.getElementById('report-view').classList.add('hidden');
+      switchAdminTab('exams');
+      renderAdminExamsList();
+      populateExamFilterDropdown();
+    }
+
+    function switchAdminTab(tab) {
+      ['exams', 'new-exam', 'reports', 'settings'].forEach(t => {
+        document.getElementById(`admin-tab-${t}`).classList.add('hidden');
+      });
+      document.getElementById(`admin-tab-${tab}`).classList.remove('hidden');
+
+      const btns = document.querySelectorAll('.admin-tab-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      if (tab === 'exams') btns[0].classList.add('active');
+      if (tab === 'new-exam') {
+        btns[1].classList.add('active');
+        if (document.getElementById('lessons-container').children.length === 0) {
+          initDefaultLessonRows();
+        }
+        generateKeyInputs();
+      }
+      if (tab === 'reports') {
+        btns[2].classList.add('active');
+        renderAdminReports();
+      }
+      if (tab === 'settings') btns[3].classList.add('active');
+    }
+
+    function renderAdminExamsList() {
+      const exams = getExamsDB();
+      checkIncomingExamFromUrl();
+      const container = document.getElementById('admin-exams-list');
+      if (exams.length === 0) {
+        container.innerHTML = '<p style="color:var(--slate-600); text-align:center; padding:20px;">هیچ آزمونی ثبت نشده است.</p>';
+        return;
+      }
+
+      container.innerHTML = exams.map(ex => `
+        <div class="exam-card-item">
+          <div>
+            <div style="font-weight: 800; font-size: 1.05rem; margin-bottom: 4px;">${ex.title}</div>
+            <div style="font-size: 0.82rem; color: var(--slate-600); display: flex; gap: 14px;">
+              <span>⏱ ${ex.durationMinutes} دقیقه</span>
+              <span>📝 ${ex.questionsCount} سوال</span>
+              <span>📚 سرفصل‌ها: ${ex.lessons ? ex.lessons.map(l => l.name).join('، ') : 'عمومی'}</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="badge-status ${ex.isActive ? 'badge-active' : 'badge-inactive'}">
+              ${ex.isActive ? 'فعال' : 'غیرفعال'}
+            </span>
+            <button class="btn btn-secondary btn-sm" onclick="toggleExamStatus('${ex.id}')">
+              ${ex.isActive ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
+            </button>
+            <button class="btn btn-primary btn-sm" style="background:#0284c7;" onclick="generateExamShareLink('${ex.id}')">🔗 دریافت لینک دانش‌آموز</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteExam('${ex.id}')">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleExamStatus(id) {
+      const exams = getExamsDB();
+      checkIncomingExamFromUrl();
+      const ex = exams.find(e => e.id === id);
+      if (ex) {
+        ex.isActive = !ex.isActive;
+        saveExamsDB(exams);
+        renderAdminExamsList();
+        showToast('وضعیت آزمون به‌روزرسانی شد.');
+      }
+    }
+
+    function deleteExam(id) {
+      if (!confirm('آیا مایل به حذف این آزمون هستید؟')) return;
+      let exams = getExamsDB();
+      checkIncomingExamFromUrl();
+      exams = exams.filter(e => e.id !== id);
+      saveExamsDB(exams);
+      renderAdminExamsList();
+      populateExamFilterDropdown();
+      showToast('آزمون با موفقیت حذف گردید.');
+    }
+
+    function initDefaultLessonRows() {
+      const container = document.getElementById('lessons-container');
+      container.innerHTML = '';
+      addLessonRow('ریاضیات', 1, 3);
+      addLessonRow('فیزیک', 4, 6);
+      addLessonRow('شیمی', 7, 10);
+    }
+
+    function addLessonRow(name = '', from = 1, to = 10) {
+      const container = document.getElementById('lessons-container');
+      const div = document.createElement('div');
+      div.className = 'lesson-row';
+      div.innerHTML = `
+        <input type="text" class="form-control lesson-name" placeholder="نام درس (مثال: فیزیک)" value="${name}" style="flex:2;" required>
+        <span style="font-size:0.85rem;">از سوال:</span>
+        <input type="number" class="form-control lesson-from" value="${from}" min="1" style="width:75px;" required>
+        <span style="font-size:0.85rem;">تا سوال:</span>
+        <input type="number" class="form-control lesson-to" value="${to}" min="1" style="width:75px;" required>
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">حذف</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function generateKeyInputs() {
+      const qCount = parseInt(document.getElementById('exam-qcount').value) || 10;
+      const container = document.getElementById('answer-keys-container');
+      container.innerHTML = '';
+
+      for (let i = 1; i <= qCount; i++) {
+        const item = document.createElement('div');
+        item.style.padding = '6px';
+        item.style.border = '1px solid #e2e8f0';
+        item.style.borderRadius = '8px';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+        item.innerHTML = `
+          <span style="font-weight:700; font-size:0.85rem;">سوال ${i}:</span>
+          <select class="form-control key-selector" data-q="${i}" style="width:65px; padding:4px 8px; font-weight:700;">
+            <option value="1">۱</option>
+            <option value="2">۲</option>
+            <option value="3">۳</option>
+            <option value="4">۴</option>
+          </select>
+        `;
+        container.appendChild(item);
+      }
+    }
+
+    let uploadedPdfDataUrl = '';
+    function handlePdfFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 25 * 1024 * 1024) {
+        alert('حجم فایل انتخاب شده بیش از ۲۵ مگابایت است.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        uploadedPdfDataUrl = evt.target.result;
+        document.getElementById('pdf-upload-status').innerText = `✓ فایل "${file.name}" با موفقیت آماده شد (${(file.size / 1024).toFixed(0)} کیلوبایت).`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleCreateExam(e) {
+      e.preventDefault();
+      const title = document.getElementById('exam-title').value.trim();
+      const duration = parseInt(document.getElementById('exam-duration').value) || 30;
+      const qCount = parseInt(document.getElementById('exam-qcount').value) || 10;
+      const hasNeg = document.getElementById('exam-negative-marking').value === '1';
+      const pdfUrlInput = document.getElementById('exam-pdf-url').value.trim();
+
+      const finalPdf = uploadedPdfDataUrl || pdfUrlInput || '';
+
+      const lessonRows = document.querySelectorAll('.lesson-row');
+      const lessons = [];
+      lessonRows.forEach(r => {
+        const name = r.querySelector('.lesson-name').value.trim();
+        const fromQ = parseInt(r.querySelector('.lesson-from').value);
+        const toQ = parseInt(r.querySelector('.lesson-to').value);
+        if (name && fromQ && toQ) {
+          lessons.push({ name, fromQ, toQ });
+        }
+      });
+
+      const keys = {};
+      const keySelectors = document.querySelectorAll('.key-selector');
+      keySelectors.forEach(s => {
+        const q = parseInt(s.getAttribute('data-q'));
+        keys[q] = parseInt(s.value);
+      });
+
+      const newExam = {
+        id: 'exam_' + Date.now(),
+        title,
+        durationMinutes: duration,
+        questionsCount: qCount,
+        hasNegativeMarking: hasNeg,
+        pdfUrl: finalPdf,
+        lessons: lessons.length ? lessons : [{ name: 'آزمون عمومی', fromQ: 1, toQ: qCount }],
+        keys,
+        isActive: true
+      };
+
+      const exams = getExamsDB();
+      checkIncomingExamFromUrl();
+      exams.unshift(newExam);
+      saveExamsDB(exams);
+
+      showToast('آزمون جدید با موفقیت ایجاد و فعال شد.');
+      document.getElementById('create-exam-form').reset();
+      uploadedPdfDataUrl = '';
+      document.getElementById('pdf-upload-status').innerText = '';
+      switchAdminTab('exams');
+      renderAdminExamsList();
+      populateExamFilterDropdown();
+    }
+
+    /* ==========================================================
+       داشبورد دانش‌آموز و رعایت یکبار شرکت در آزمون
+       ========================================================== */
+    function showStudentDashboard() {
+      document.getElementById('admin-view').classList.add('hidden');
+      document.getElementById('student-view').classList.remove('hidden');
+      document.getElementById('exam-taking-view').classList.add('hidden');
+      document.getElementById('report-view').classList.add('hidden');
+      document.getElementById('student-rules-modal').classList.add('hidden');
+      document.getElementById('student-exams-list-container').classList.remove('hidden');
+
+      renderStudentAvailableExams();
+      renderStudentProgressChart();
+    }
+
+    function renderStudentAvailableExams() {
+      const exams = getExamsDB().filter(e => e.isActive);
+      const subs = getSubmissionsDB();
+      const container = document.getElementById('student-exams-list');
+
+      if (exams.length === 0) {
+        container.innerHTML = '<div class="alert-box">در حال حاضر آزمون فعالی وجود ندارد.</div>';
+        return;
+      }
+
+      container.innerHTML = exams.map(ex => {
+        const alreadyTaken = subs.some(s => s.examId === ex.id && s.username === currentUser.username);
+
+        return `
+          <div class="exam-card-item">
+            <div>
+              <div style="font-weight: 800; font-size: 1.1rem; color: var(--dark);">${ex.title}</div>
+              <div style="font-size: 0.85rem; color: var(--slate-600); margin-top: 4px; display: flex; gap: 14px;">
+                <span>⏱ مدت: ${ex.durationMinutes} دقیقه</span>
+                <span>📝 تعداد سوالات: ${ex.questionsCount}</span>
+                <span>${ex.hasNegativeMarking ? '⚠️ دارای نمره منفی' : 'بدون نمره منفی'}</span>
+              </div>
+            </div>
+            <div>
+              ${alreadyTaken ? `
+                <button class="btn btn-secondary btn-sm" onclick="viewSubmissionReport('${ex.id}', '${currentUser.username}')">
+                  مشاهده کارنامه
+                </button>
+                <span style="font-size: 0.78rem; color: #dc2626; display: block; text-align: center; margin-top: 4px; font-weight: 600;">(تکمیل شده)</span>
+              ` : `
+                <button class="btn btn-primary" onclick="openExamRules('${ex.id}')">
+                  ورود به آزمون
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openExamRules(examId) {
+      const exams = getExamsDB();
+      checkIncomingExamFromUrl();
+      const ex = exams.find(e => e.id === examId);
+      if (!ex) return;
+
+      currentExam = ex;
+      document.getElementById('student-exams-list-container').classList.add('hidden');
+      document.getElementById('student-rules-modal').classList.remove('hidden');
+      document.getElementById('rules-exam-title').innerText = ex.title;
+      document.getElementById('rules-exam-duration').innerText = `${ex.durationMinutes} دقیقه`;
+    }
+
+    function backToStudentDashboard() {
+      document.getElementById('student-rules-modal').classList.add('hidden');
+      document.getElementById('student-exams-list-container').classList.remove('hidden');
+    }
+
+    /* ==========================================================
+       شروع آزمون و رفع خطای خروج از صفحه در هنگام مشاهده PDF
+       ========================================================== */
+    function beginExam() {
+      if (!currentExam) return;
+
+      const subs = getSubmissionsDB();
+      const alreadyTaken = subs.some(s => s.examId === currentExam.id && s.username === currentUser.username);
+      if (alreadyTaken) {
+        alert('شما قبلاً در این آزمون شرکت کرده‌اید و مجاز به ورود مجدد نیستید!');
+        showStudentDashboard();
+        return;
+      }
+
+      studentAnswers = {};
+      document.getElementById('student-view').classList.add('hidden');
+      document.getElementById('exam-taking-view').classList.remove('hidden');
+      document.getElementById('exam-taking-title').innerText = currentExam.title;
+      document.getElementById('taking-user-name').innerText = currentUser.name;
+
+      setupPdfViewer();
+      renderOmrSheet();
+
+      remainingSeconds = currentExam.durationMinutes * 60;
+      updateTimerDisplay();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        remainingSeconds--;
+        updateTimerDisplay();
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          alert('زمان آزمون به پایان رسید! برگه شما به طور خودکار ثبت شد.');
+          finishAndSubmitExam(true);
+        }
+      }, 1000);
+
+      // عدم نمایش ارور هنگام مشاهده سوالات در تب دیگر
+      window.onblur = function() {
+        if (!isHelperWindowActive && !document.getElementById('exam-taking-view').classList.contains('hidden')) {
+          console.warn("User focus changed.");
+        }
+      };
+
+      showToast('آزمون آغاز شد.');
+    }
+
+    function setupPdfViewer() {
+      const container = document.getElementById("pdf-container-inner");
+      const url = currentExam.pdfUrl ? currentExam.pdfUrl.trim() : "";
+
+      if (url && url.length > 5) {
+        let embedSrc = url;
+        if (url.startsWith("http") && !url.includes("drive.google.com")) {
+          embedSrc = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+        }
+        container.innerHTML = `
+          <div style="width:100%; height:100%; display:flex; flex-direction:column;">
+            <div style="background:#f1f5f9; padding:8px 14px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #cbd5e1; font-size:0.82rem;">
+              <span style="font-weight:700; color:#334155;">دفترچه سوالات</span>
+              <a href="${url}" target="_blank" onclick="isHelperWindowActive=true; setTimeout(()=>isHelperWindowActive=false,4000);" style="color:#4338ca; font-weight:700; text-decoration:none;">دانلود / باز کردن فایل PDF در پنجره مستقل ↗</a>
+            </div>
+            <iframe id="pdf-iframe" class="pdf-frame" src="${embedSrc}" style="flex:1; width:100%; border:none; min-height:650px;"></iframe>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="padding:30px; text-align:center; color:#475569; line-height:2;">
+            <h3 style="color:#4338ca; margin-bottom:10px;">دفترچه سوالات آزمون آنلاین</h3>
+            <p>فایل سوالات بارگذاری نشده است یا آزمون تستی می‌باشد.</p>
+            <div style="margin-top:20px; text-align:right; background:#fff; padding:18px; border-radius:12px; border:1px solid #e2e8f0; font-size:0.9rem;">
+              <p><strong>سوال ۱:</strong> حاصل عبارت جبری داده شده در کدام گزینه آمده است؟ &nbsp;&nbsp; ۱) ۱۲ &nbsp;&nbsp; ۲) ۲۴ &nbsp;&nbsp; ۳) ۳۶ &nbsp;&nbsp; ۴) ۴۸</p>
+              <p><strong>سوال ۲:</strong> یکای شتاب در سیستم بین‌المللی SI چیست؟ &nbsp;&nbsp; ۱) متر بر ثانیه &nbsp;&nbsp; ۲) ژول &nbsp;&nbsp; ۳) نیوتون &nbsp;&nbsp; ۴) متر بر مجذور ثانیه</p>
+              <p><strong>سوال ۳:</strong> کدام ویژگی نشان‌دهنده یک ترکیب یونی است؟ &nbsp;&nbsp; ۱) نقطه ذوب بالا &nbsp;&nbsp; ۲) رسانایی جامد &nbsp;&nbsp; ۳) چگالی بسیار کم &nbsp;&nbsp; ۴) گاز در دمای اتاق</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function openPdfInControlledWindow() {
+      isHelperWindowActive = true;
+      setTimeout(() => { isHelperWindowActive = false; }, 4000);
+      const url = currentExam.pdfUrl ? currentExam.pdfUrl.trim() : "";
+      if (url) {
+        window.open(url, "_blank");
+      } else {
+        alert("فایل پی‌دی‌افی برای این آزمون تنظیم نشده است.");
+      }
+    }
+
+    function renderOmrSheet() {
+      const container = document.getElementById('omr-questions-list');
+      container.innerHTML = '';
+      const totalQ = currentExam.questionsCount;
+
+      for (let i = 1; i <= totalQ; i++) {
+        const row = document.createElement('div');
+        row.className = 'omr-question-row';
+        row.id = `omr-row-${i}`;
+
+        let lessonName = '';
+        if (currentExam.lessons) {
+          const l = currentExam.lessons.find(ls => i >= ls.fromQ && i <= ls.toQ);
+          if (l) lessonName = ` (${l.name})`;
+        }
+
+        row.innerHTML = `
+          <div class="omr-q-num">
+            <span>سوال ${i}</span>
+            <small style="display:block; font-size:0.68rem; color:var(--slate-600);">${lessonName}</small>
+          </div>
+          <div class="omr-bubble-group">
+            <button type="button" class="bubble-btn" onclick="selectAnswer(${i}, 1)">۱</button>
+            <button type="button" class="bubble-btn" onclick="selectAnswer(${i}, 2)">۲</button>
+            <button type="button" class="bubble-btn" onclick="selectAnswer(${i}, 3)">۳</button>
+            <button type="button" class="bubble-btn" onclick="selectAnswer(${i}, 4)">۴</button>
+          </div>
+          <button type="button" class="clear-q-btn" title="حذف انتخاب" onclick="clearAnswer(${i})">✕</button>
+        `;
+        container.appendChild(row);
+      }
+      updateAnsweredBadge();
+    }
+
+    function selectAnswer(qNum, choice) {
+      studentAnswers[qNum] = choice;
+      const row = document.getElementById(`omr-row-${qNum}`);
+      const bubbles = row.querySelectorAll('.bubble-btn');
+      bubbles.forEach((b, idx) => {
+        if (idx + 1 === choice) b.classList.add('selected');
+        else b.classList.remove('selected');
+      });
+      updateAnsweredBadge();
+    }
+
+    function clearAnswer(qNum) {
+      delete studentAnswers[qNum];
+      const row = document.getElementById(`omr-row-${qNum}`);
+      const bubbles = row.querySelectorAll('.bubble-btn');
+      bubbles.forEach(b => b.classList.remove('selected'));
+      updateAnsweredBadge();
+    }
+
+    function updateAnsweredBadge() {
+      const count = Object.keys(studentAnswers).length;
+      document.getElementById('answered-count-badge').innerText = `${count} از ${currentExam.questionsCount} پاسخ داده شده`;
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(remainingSeconds / 60);
+      const secs = remainingSeconds % 60;
+      document.getElementById('exam-timer').innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      if (remainingSeconds < 180) {
+        document.getElementById('exam-timer-box').classList.add('timer-urgent');
+      } else {
+        document.getElementById('exam-timer-box').classList.remove('timer-urgent');
+      }
+    }
+
+    function confirmFinishExam() {
+      const answered = Object.keys(studentAnswers).length;
+      const total = currentExam.questionsCount;
+      const unAns = total - answered;
+
+      if (confirm(`آیا از ثبت نهایی پاسخ‌برگ اطمینان دارید؟\nپاسخ‌داده شده: ${answered}\nسفید: ${unAns}\n(توجه: پس از ثبت، امکان ورود دوباره به آزمون وجود ندارد)`)) {
+        finishAndSubmitExam(false);
+      }
+    }
+
+    /* ==========================================================
+       محاسبه تراز، نمره منفی و ثبت نهایی کارنامه
+       ========================================================== */
+    function finishAndSubmitExam(isAuto = false) {
+      if (timerInterval) clearInterval(timerInterval);
+
+      const totalQ = currentExam.questionsCount;
+      let totalCorrect = 0;
+      let totalWrong = 0;
+      let totalUnanswered = 0;
+
+      const lessonBreakdown = (currentExam.lessons || [{ name: 'کل آزمون', fromQ: 1, toQ: totalQ }]).map(lesson => {
+        let correct = 0;
+        let wrong = 0;
+        let unans = 0;
+        const count = (lesson.toQ - lesson.fromQ) + 1;
+
+        for (let q = lesson.fromQ; q <= lesson.toQ; q++) {
+          const studentAns = studentAnswers[q];
+          const correctKey = currentExam.keys ? currentExam.keys[q] : null;
+
+          if (!studentAns) {
+            unans++;
+            totalUnanswered++;
+          } else if (correctKey && studentAns === correctKey) {
+            correct++;
+            totalCorrect++;
+          } else {
+            wrong++;
+            totalWrong++;
+          }
+        }
+
+        let percentage = 0;
+        if (currentExam.hasNegativeMarking) {
+          percentage = ((correct * 3 - wrong) / (count * 3)) * 100;
+        } else {
+          percentage = (correct / count) * 100;
+        }
+        percentage = Math.round(percentage * 10) / 10;
+
+        return {
+          lessonName: lesson.name,
+          count,
+          correct,
+          wrong,
+          unanswered: unans,
+          percentage
+        };
+      });
+
+      let totalPercentage = 0;
+      if (currentExam.hasNegativeMarking) {
+        totalPercentage = ((totalCorrect * 3 - totalWrong) / (totalQ * 3)) * 100;
+      } else {
+        totalPercentage = (totalCorrect / totalQ) * 100;
+      }
+      totalPercentage = Math.round(totalPercentage * 10) / 10;
+
+      const submissionRecord = {
+        id: 'sub_' + Date.now(),
+        examId: currentExam.id,
+        examTitle: currentExam.title,
+        username: currentUser.username,
+        studentName: currentUser.name,
+        date: new Date().toLocaleDateString('fa-IR'),
+        totalQ,
+        totalCorrect,
+        totalWrong,
+        totalUnanswered,
+        totalPercentage,
+        lessonBreakdown,
+        studentAnswers: { ...studentAnswers },
+        examKeys: { ...(currentExam.keys || {}) }
+      };
+
+      const subs = getSubmissionsDB();
+      subs.push(submissionRecord);
+      saveSubmissionsDB(subs);
+
+      // اطلاع‌رسانی ایمیل
+      notifyResultViaEmail(submissionRecord);
+
+      document.getElementById('exam-taking-view').classList.add('hidden');
+      renderReportView(submissionRecord);
+      showToast('پاسخ‌برگ با موفقیت ثبت شد.');
+    }
+
+    function notifyResultViaEmail(record) {
+      const emailTarget = "gholamia692@gmail.com";
+      
+      // ساخت متن کامل گزارش آزمون
+      let lessonsReport = "";
+      if (record.lessonBreakdown) {
+        lessonsReport = record.lessonBreakdown.map(l => `${l.lessonName}: ${l.percentage}% (صحیح: ${l.correct}، غلط: ${l.wrong}، سفید: ${l.unanswered})`).join("\n");
+      }
+
+      const emailSubject = `کارنامه آزمون: ${record.examTitle} - دانش‌آموز: ${record.studentName} (${record.username})`;
+      const emailBody = `
+گزارش آزمون آنلاین دانش‌آموز:
+------------------------------------------
+نام دانش‌آموز: ${record.studentName} (${record.username})
+عنوان آزمون: ${record.examTitle}
+تاریخ: ${record.date}
+درصد کل تراز شده: ${record.totalPercentage}%
+تعداد پاسخ‌های صحیح: ${record.totalCorrect}
+تعداد پاسخ‌های غلط: ${record.totalWrong}
+تعداد نزده: ${record.totalUnanswered}
+
+ریز درصد به تفکیک دروس:
+${lessonsReport}
+------------------------------------------
+این ایمیل به طور خودکار از سامانه سنجش آنلاین به مقصد ${emailTarget} ارسال گردیده است.
+      `.trim();
+
+      // ۱. ارسال خودکار از طریق API رایگان Formspree
+      try {
+        fetch("https://formsubmit.co/ajax/" + emailTarget, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            name: "سامانه سنجش آنلاین",
+            subject: emailSubject,
+            message: emailBody,
+            _captcha: "false"
+          })
+        }).then(res => {
+          console.log("Email auto-dispatched successfully to " + emailTarget);
+        }).catch(err => {
+          console.warn("Direct HTTP post failed, fallback active", err);
+        });
+      } catch (e) {}
+    }
+
+    /* ==========================================================
+       نمایش و خروجی PDF کارنامه تحلیلی
+       ========================================================== */
+    function renderReportView(record) {
+      document.getElementById('report-view').classList.remove('hidden');
+
+      document.getElementById('rep-exam-title').innerText = record.examTitle;
+      document.getElementById('rep-student-meta').innerText = `دانش‌آموز: ${record.studentName} (${record.username}) | تاریخ برگزاری: ${record.date}`;
+      document.getElementById('rep-total-percent').innerText = `${record.totalPercentage}%`;
+      document.getElementById('rep-stat-total').innerText = record.totalQ;
+      document.getElementById('rep-stat-correct').innerText = record.totalCorrect;
+      document.getElementById('rep-stat-wrong').innerText = record.totalWrong;
+      document.getElementById('rep-stat-unanswered').innerText = record.totalUnanswered;
+
+      const tbody = document.getElementById('rep-lessons-tbody');
+      tbody.innerHTML = record.lessonBreakdown.map(l => `
+        <tr>
+          <td style="font-weight:700;">${l.lessonName}</td>
+          <td>${l.count}</td>
+          <td style="color:#10b981; font-weight:700;">${l.correct}</td>
+          <td style="color:#ef4444; font-weight:700;">${l.wrong}</td>
+          <td style="color:#64748b;">${l.unanswered}</td>
+          <td style="font-weight:800; color: ${l.percentage >= 50 ? '#059669' : '#dc2626'};">${l.percentage}%</td>
+          <td style="width: 140px;">
+            <div class="percent-bar-bg">
+              <div class="percent-bar-fill" style="width: ${Math.max(0, l.percentage)}%;"></div>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      const grid = document.getElementById('rep-questions-grid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= record.totalQ; i++) {
+        const studentAns = record.studentAnswers[i] || '—';
+        const correctKey = record.examKeys[i] || '—';
+        const isCorrect = studentAns === correctKey;
+        const isUnans = studentAns === '—';
+
+        let bg = '#dcfce7';
+        let statusText = 'صحیح';
+        let textColor = '#166534';
+
+        if (isUnans) {
+          bg = '#f1f5f9';
+          statusText = 'سفید';
+          textColor = '#475569';
+        } else if (!isCorrect) {
+          bg = '#fee2e2';
+          statusText = 'نادرست';
+          textColor = '#991b1b';
+        }
+
+        const div = document.createElement('div');
+        div.style.background = bg;
+        div.style.color = textColor;
+        div.style.padding = '8px 10px';
+        div.style.borderRadius = '8px';
+        div.style.fontSize = '0.82rem';
+        div.innerHTML = `
+          <strong>سوال ${i}:</strong> ${statusText}
+          <div style="font-size:0.75rem; margin-top:2px;">انتخاب: <b>${studentAns}</b> | کلید: <b>${correctKey}</b></div>
+        `;
+        grid.appendChild(div);
+      }
+    }
+
+    function viewSubmissionReport(examId, username) {
+      const subs = getSubmissionsDB();
+      const rec = subs.find(s => s.examId === examId && s.username === username);
+      if (rec) {
+        document.getElementById('student-view').classList.add('hidden');
+        document.getElementById('admin-view').classList.add('hidden');
+        renderReportView(rec);
+      } else {
+        alert('کارنامه‌ای یافت نشد.');
+      }
+    }
+
+    function backFromReport() {
+      document.getElementById('report-view').classList.add('hidden');
+      if (currentUser && currentUser.role === 'admin') {
+        showAdminPanel();
+      } else {
+        showStudentDashboard();
+      }
+    }
+
+    function exportReportToPdf() {
+      const el = document.getElementById('report-to-export');
+      showToast('در حال آماده‌سازی PDF کارنامه...');
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `karname_${currentUser ? currentUser.username : 'azmoon'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      if (window.html2pdf) {
+        window.html2pdf().set(opt).from(el).save();
+      } else {
+        window.print();
+      }
+    }
+
+    /* ==========================================================
+       نمودارها و مدیریت سوابق در پنل ادمین
+       ========================================================== */
+    function populateExamFilterDropdown() {
+      const exams = getExamsDB();
+      checkIncomingExamFromUrl();
+      const sel = document.getElementById('admin-filter-exam');
+      sel.innerHTML = '<option value="ALL">همه آزمون‌ها</option>' + exams.map(e => `<option value="${e.id}">${e.title}</option>`).join('');
+    }
+
+    function renderAdminReports() {
+      const selUser = document.getElementById('admin-filter-user').value;
+      const selExam = document.getElementById('admin-filter-exam').value;
+      let subs = getSubmissionsDB();
+
+      if (selUser !== 'ALL') {
+        subs = subs.filter(s => s.username === selUser);
+      }
+      if (selExam !== 'ALL') {
+        subs = subs.filter(s => s.examId === selExam);
+      }
+
+      const container = document.getElementById('admin-submissions-list');
+      if (subs.length === 0) {
+        container.innerHTML = '<p style="color:var(--slate-600); text-align:center; padding:18px;">سابقه‌ای یافت نشد.</p>';
+      } else {
+        container.innerHTML = subs.map(s => `
+          <div class="exam-card-item">
+            <div>
+              <div style="font-weight:800; font-size:1.05rem;">${s.studentName} (${s.username}) - ${s.examTitle}</div>
+              <div style="font-size:0.82rem; color:var(--slate-600); margin-top:4px;">
+                <span>📅 تاریخ: ${s.date}</span> |
+                <span>درصد کل: <strong style="color:var(--primary); font-size:0.95rem;">${s.totalPercentage}%</strong></span> |
+                <span>صحیح: ${s.totalCorrect} | غلط: ${s.totalWrong} | سفید: ${s.totalUnanswered}</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary btn-sm" onclick='renderReportView(${JSON.stringify(s)})'>
+                مشاهده کارنامه
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="resetUserAttempt('${s.examId}', '${s.username}')" title="پاک کردن سابقه تا دانش‌آموز بتواند مجدداً آزمون دهد">
+                مجوز آزمون مجدد
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      drawProgressChart(subs, 'admin-progress-chart');
+    }
+
+    function resetUserAttempt(examId, username) {
+      if (!confirm(`آیا مایلید مجوز شرکت مجدد به کاربر "${username}" اعطا شود؟ (سوابق قبلی پاک خواهد شد)`)) return;
+      let subs = getSubmissionsDB();
+      subs = subs.filter(s => !(s.examId === examId && s.username === username));
+      saveSubmissionsDB(subs);
+      renderAdminReports();
+      showToast(`دسترسی مجدد به آزمون برای کاربر ${username} فعال شد.`);
+    }
+
+    function renderStudentProgressChart() {
+      const subs = getSubmissionsDB().filter(s => s.username === currentUser.username);
+      drawProgressChart(subs, 'student-progress-chart');
+    }
+
+    function drawProgressChart(submissions, canvasId) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+
+      if (canvasId === 'admin-progress-chart' && adminProgressChart) adminProgressChart.destroy();
+      if (canvasId === 'student-progress-chart' && studentProgressChart) studentProgressChart.destroy();
+
+      if (submissions.length === 0) return;
+
+      const labels = submissions.map(s => s.examTitle.length > 20 ? s.examTitle.substring(0, 20) + '...' : s.examTitle);
+      const totalPercentages = submissions.map(s => s.totalPercentage);
+
+      const chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'درصد کل آزمون',
+              data: totalPercentages,
+              backgroundColor: 'rgba(67, 56, 202, 0.8)',
+              borderColor: '#4338ca',
+              borderWidth: 1.5,
+              borderRadius: 8
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { callback: function(v) { return v + '%'; } }
+            }
+          },
+          plugins: {
+            legend: { labels: { font: { family: 'Vazirmatn' } } }
+          }
+        }
+      });
+
+      if (canvasId === 'admin-progress-chart') adminProgressChart = chartInstance;
+      if (canvasId === 'student-progress-chart') studentProgressChart = chartInstance;
+    }
+
+    /* ==========================================================
+       پشتیبان‌گیری و همگام‌سازی
+       ========================================================== */
+    
+    /* ایجاد لینک اختصاصی آزمون برای ارسال به دانش‌آموز */
+    function generateExamShareLink(examId) {
+      const exams = getExamsDB();
+      checkIncomingExamFromUrl();
+      const ex = exams.find(e => e.id === examId);
+      if (!ex) return;
+
+      // فشرده‌سازی اطلاعات آزمون بدون پی‌دی‌اف‌های سنگین لوکال (یا با پی‌دی‌اف لینک)
+      const shareData = {
+        id: ex.id,
+        title: ex.title,
+        durationMinutes: ex.durationMinutes,
+        questionsCount: ex.questionsCount,
+        hasNegativeMarking: ex.hasNegativeMarking,
+        pdfUrl: ex.pdfUrl,
+        lessons: ex.lessons,
+        keys: ex.keys,
+        isActive: true
+      };
+
+      try {
+        const jsonStr = JSON.stringify(shareData);
+        // استفاده از encodeURIComponent و btoa ایمن
+        const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+        const baseUrl = window.location.href.split('#')[0].split('?')[0];
+        const fullLink = baseUrl + '?exam=' + encoded;
+
+        // کپی خودکار در حافظه کلیپ‌بورد
+        navigator.clipboard.writeText(fullLink).then(() => {
+          alert('لینک اختصاصی آزمون در کلیپ‌بورد کپی شد!
+
+این لینک را مستقیماً برای دانش‌آموز بفرستید. وقتی دانش‌آموز روی این لینک بزند، آزمون به طور خودکار روی گوشی یا کامپیوترش ظاهر می‌شود.');
+        }).catch(() => {
+          prompt('این لینک را کپی کنید و برای دانش‌آموز بفرستید تا آزمون روی دستگاهش لود شود:', fullLink);
+        });
+      } catch (err) {
+        alert('به دلیل حجم بالای فایل پی‌دی‌اف مستقیم، لطفاً لینک پی‌دی‌اف را در کادر قرار دهید یا از دکمه دانلود فایل پشتیبان استفاده کنید.');
+      }
+    }
+
+    /* بررسی وجود آزمون در آدرس صفحه هنگام باز شدن */
+    function checkIncomingExamFromUrl() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedExam = urlParams.get('exam');
+        if (encodedExam) {
+          const jsonStr = decodeURIComponent(escape(atob(encodedExam)));
+          const incomingExam = JSON.parse(jsonStr);
+          if (incomingExam && incomingExam.id) {
+            let exams = getExamsDB();
+      checkIncomingExamFromUrl();
+            const existingIndex = exams.findIndex(e => e.id === incomingExam.id);
+            if (existingIndex >= 0) {
+              exams[existingIndex] = incomingExam;
+            } else {
+              exams.unshift(incomingExam);
+            }
+            saveExamsDB(exams);
+            showToast('آزمون جدید با موفقیت روی دستگاه شما همگام‌سازی شد.');
+          }
+        }
+      } catch (err) {
+        console.error('Error importing exam from URL', err);
+      }
+    }
+
+    function exportDataJson() {
+      const data = {
+        exams: getExamsDB(),
+        submissions: getSubmissionsDB(),
+        version: "3.0"
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `azmoon_backup_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('فایل پشتیبان دانلود شد.');
+    }
+
+    function triggerImportJson() {
+      document.getElementById('import-json-file').click();
+    }
+
+    function importDataJson(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.exams) saveExamsDB(parsed.exams);
+          if (parsed.submissions) saveSubmissionsDB(parsed.submissions);
+          showToast('داده‌های آزمون با موفقیت بارگذاری شدند.');
+          renderAdminExamsList();
+          renderAdminReports();
+        } catch (err) {
+          alert('خطا در خواندن فایل! فرمت فایل صحیح نیست.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      getExamsDB();
+      checkIncomingExamFromUrl();
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3d7c5776ea2f182',t:'MTc4OTgxMjMxOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
