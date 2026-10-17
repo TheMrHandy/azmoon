@@ -1,1450 +1,265 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سامانه آزمون آنلاین هوشمند</title>
-  <meta name="description" content="سامانه برگزاری آزمون آنلاین زیست‌شناسی گروه آموزشی آرمان">
-  <meta property="og:title" content="سامانه آزمون آنلاین هوشمند">
-  <meta property="og:description" content="سامانه برگزاری آزمون آنلاین زیست‌شناسی گروه آموزشی آرمان">
-  <meta property="og:type" content="website">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234338ca'/%3E%3Cpath d='M18 34 L28 44 L46 22' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <style>
-    :root {
-      --primary: #4338ca;
-      --primary-dark: #3730a3;
-      --primary-light: #e0e7ff;
-      --slate-800: #1e293b;
-      --slate-600: #475569;
-      --border: #e2e8f0;
-      --radius: 16px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Vazirmatn', sans-serif;
-    }
-
-    body {
-      background: #f1f5f9;
-      color: #0f172a;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .brand-title {
-      font-size: 1.15rem;
-      font-weight: 900;
-      color: var(--primary);
-    }
-
-    .view-container {
-      flex: 1;
-      padding: 20px;
-      max-width: 1250px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background: #f8fafc;
-      color: var(--slate-600);
-      border: 1px solid var(--border);
-    }
-
-    .btn-danger {
-      background: #ef4444;
-      color: white;
-    }
-
-    .btn-sm {
-      padding: 6px 14px;
-      font-size: 0.82rem;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-      text-align: right;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: var(--slate-800);
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-    .form-control:focus {
-      border-color: var(--primary);
-    }
-
-    /* صفحه لاگین */
-    #login-view {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: calc(100vh - 120px);
-    }
-
-    .login-box {
-      background: white;
-      border-radius: 20px;
-      padding: 36px 30px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      border: 1px solid var(--border);
-      text-align: center;
-    }
-
-    /* محیط آزمون */
-    .exam-split {
-      display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: 20px;
-      min-height: 700px;
-    }
-
-    @media(max-width: 900px) {
-      .exam-split { grid-template-columns: 1fr; }
-      /* ارتفاع مناسب iframe در موبایل */
-      .pdf-frame { height: 420px; }
-      .omr-box { max-height: none; }
-    }
-
-    .pdf-viewer-box {
-      background: white;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .pdf-viewer-top {
-      background: #f8fafc;
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .pdf-frame {
-      width: 100%;
-      height: 720px;
-      border: none;
-    }
-
-    .pdf-fallback {
-      padding: 14px 16px;
-      font-size: 0.85rem;
-      color: var(--slate-600);
-      line-height: 2;
-      background: #fffbeb;
-      border-top: 1px solid #fde68a;
-    }
-
-    .omr-box {
-      background: white;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      padding: 18px;
-      max-height: 770px;
-      overflow-y: auto;
-    }
-
-    .omr-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 12px;
-      background: #f8fafc;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .bubble-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid #cbd5e1;
-      background: white;
-      font-weight: 800;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin: 0 3px;
-    }
-    .bubble-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    .btn-clear-answer {
-      border: none;
-      background: transparent;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-right: 6px;
-      white-space: nowrap;
-    }
-    .btn-clear-answer:hover { color: #ef4444; }
-
-    .progress-badge {
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--primary-dark);
-      background: var(--primary-light);
-      padding: 5px 12px;
-      border-radius: 8px;
-    }
-
-    .timer-badge {
-      font-size: 1.3rem;
-      font-weight: 900;
-      color: var(--primary);
-      background: #eef2ff;
-      padding: 6px 16px;
-      border-radius: 10px;
-    }
-    .timer-badge.timer-danger {
-      color: #b91c1c;
-      background: #fee2e2;
-    }
-
-    /* کارنامه */
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin: 20px 0;
-    }
-
-    .stat-card {
-      background: #f8fafc;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      text-align: center;
-    }
-
-    /* جدول وضعیت سوالات کارنامه */
-    .report-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88rem;
-    }
-    .report-table th, .report-table td {
-      border: 1px solid var(--border);
-      padding: 8px 10px;
-      text-align: center;
-    }
-    .report-table th {
-      background: #f8fafc;
-      font-weight: 800;
-      color: var(--slate-800);
-    }
-
-    .badge-ok    { background:#dcfce7; color:#166534; padding:3px 10px; border-radius:999px; font-weight:700; }
-    .badge-wrong { background:#fee2e2; color:#991b1b; padding:3px 10px; border-radius:999px; font-weight:700; }
-    .badge-blank { background:#f1f5f9; color:#475569; padding:3px 10px; border-radius:999px; font-weight:700; }
-    .badge-warn  { background:#fef3c7; color:#92400e; padding:3px 10px; border-radius:999px; font-weight:800; }
-
-    .info-box {
-      background: #eef2ff;
-      border: 1px solid #c7d2fe;
-      color: #3730a3;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 0.84rem;
-      line-height: 2;
-      margin-top: 16px;
-      text-align: right;
-    }
-
-    .chart-wrap {
-      height: 240px;
-      position: relative;
-    }
-    .chart-empty {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    /* قفل چند-تبی */
-    .exam-locked {
-      opacity: 0.5;
-      pointer-events: none;
-      user-select: none;
-    }
-
-    /* چاپ کارنامه */
-    @media print {
-      header, .no-print { display: none !important; }
-      body { background: #fff; }
-      .view-container { padding: 0; max-width: 100%; }
-      .card { box-shadow: none; border: none; padding: 0; margin: 0; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07070A">
+<meta name="description" content="سامانه آزمون هفتگی علیرضا غلامی، مشاور تخصصی کنکور">
+<title>سامانه آزمون | علیرضا غلامی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{--bg:#07070A;--bg2:#0A0A0F;--card:#0F0F14;--acc:#e8b84a;--line:rgba(255,255,255,.1)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Vazirmatn,sans-serif}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:#fff;min-height:100vh}
+::selection{background:var(--acc);color:#000}
+.hidden{display:none!important}
+header{position:sticky;top:0;z-index:50;background:rgba(7,7,10,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.hd{max-width:1280px;margin:auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
+.av{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:#1a1a22 center 22%/cover;display:grid;place-items:center;font-weight:900;font-size:11px;color:var(--acc);flex:none}
+.brand b{font-size:13px;font-weight:900;display:block;line-height:1}.brand small{font-size:10px;opacity:.6}
+main{max-width:1280px;margin:auto;padding:24px 20px 60px}
+.card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:24px;padding:24px;margin-bottom:20px}
+.paper{background:#fff;color:#000;border-radius:24px;padding:28px}
+.pill{display:inline-flex;font-size:11px;font-weight:700;color:var(--acc);border:1px solid rgba(232,184,74,.3);padding:5px 12px;border-radius:999px}
+h1,h2,h3{font-weight:900}.mut{opacity:.6;font-size:13px;line-height:1.9}
+.btn,.grow{cursor:pointer;transition:transform .2s cubic-bezier(.2,.8,.2,1),filter .2s,background .2s,color .2s,border-color .2s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 22px;border-radius:999px;font-weight:900;font-size:13px;border:1px solid transparent;color:#000;background:#fff;text-decoration:none}
+@media(hover:hover){.btn:hover,.grow:hover{transform:scale(1.07)}.btn.gold:hover{filter:brightness(1.1)}.btn.ghost:hover{background:#fff;color:#000}}
+.btn:active,.grow:active{transform:scale(.97)}
+.btn.gold{background:var(--acc)}.btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.2)}.btn.red{background:#ef4444;color:#fff}.btn.sm{padding:7px 14px;font-size:12px}
+.btn:disabled{opacity:.4;pointer-events:none}
+label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}
+.in{width:100%;background:#fafafa;color:#000;border:1px solid rgba(0,0,0,.1);border-radius:16px;padding:12px 16px;font-size:14px;outline:none}
+.in:focus{border-color:#000}.fg{margin-bottom:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#login{display:grid;place-items:center;min-height:70vh}.lbox{width:100%;max-width:420px}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;margin-bottom:14px}
+.ex.act{border-color:rgba(232,184,74,.4)}
+.tag{font-size:11px;font-weight:900;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.1)}.tag.g{background:var(--acc);color:#000}
+.split{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}
+@media(max-width:900px){.split{grid-template-columns:1fr}.pdfF{height:460px!important}}
+.box{background:var(--card);border:1px solid var(--line);border-radius:24px;overflow:hidden}
+.box .top{padding:12px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:700}
+.top a{color:var(--acc);text-decoration:none;font-weight:700}
+.pdfF{width:100%;height:760px;border:0;background:#fff;display:block}
+.omr{padding:16px;max-height:810px;overflow-y:auto}
+.sec{position:sticky;top:-16px;z-index:2;background:var(--card);border-radius:14px;padding:10px 14px;margin:14px 0 8px;font-weight:900;font-size:14px;border:1px solid var(--line);border-right-width:5px}
+.q{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 10px;background:rgba(255,255,255,.04);border-radius:14px;margin-bottom:6px}
+.q span{font-weight:700;font-size:13px}.q small{opacity:.5;font-size:10px;margin-right:4px}
+.b{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:transparent;color:#fff;font-weight:900;font-size:14px;margin:0 2px}
+.b.on{background:var(--acc);color:#000;border-color:var(--acc)}
+.timer{font-size:22px;font-weight:900;color:var(--acc);background:rgba(232,184,74,.12);padding:6px 18px;border-radius:999px;direction:ltr}
+.timer.d{color:#fecaca;background:rgba(239,68,68,.25)}
+.locked{opacity:.4;pointer-events:none}
+.chartw{height:240px;position:relative}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 8px;text-align:center;border-bottom:1px solid #e4e4e7}th{background:#f4f4f5;font-weight:900}
+.st{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:11px}
+.ok{background:#dcfce7;color:#166534}.bad{background:#fee2e2;color:#991b1b}.bl{background:#f4f4f5;color:#52525b}.sk{background:#fef3c7;color:#92400e}
+.stat{background:#fafafa;border:1px solid #e4e4e7;border-radius:18px;padding:12px;text-align:center}.stat b{display:block;font-size:22px;font-weight:900}.stat span{font-size:11px;opacity:.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:14px 0}
+.bar{height:8px;border-radius:99px;background:#e4e4e7;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%}
+.nb{break-inside:avoid;page-break-inside:avoid}
+@media print{header,.noprint{display:none!important}body{background:#fff}main{padding:0}}
+</style>
 </head>
 <body>
+<header><div class="hd">
+  <a class="brand grow" id="siteLink" href="#"><div class="av" id="av">ع.غ</div><div><b>علیرضا غلامی</b><small>سامانه آزمون</small></div></a>
+  <div style="display:flex;align-items:center;gap:10px" id="hdUser"></div>
+</div></header>
 
-  <header>
-    <div class="brand-title">سامانه برگزاری آزمون آنلاین</div>
-    <div id="user-header-info" class="hidden" style="display: flex; align-items: center; gap: 10px;">
-      <span id="header-user-display" style="font-weight: 700; font-size: 0.9rem;"></span>
-      <button class="btn btn-secondary btn-sm" onclick="logout()">خروج</button>
+<main>
+  <!-- ورود -->
+  <section id="login"><div class="paper lbox" style="color:#000">
+    <span class="pill" style="color:#000;border-color:rgba(0,0,0,.2)">سامانه آزمون هفتگی</span>
+    <h2 style="font-size:26px;margin:14px 0 6px">ورود به آزمون</h2>
+    <p style="font-size:13px;opacity:.6;margin-bottom:22px;line-height:1.9">شناسه و رمزی که بهت دادم رو وارد کن.</p>
+    <form id="lf">
+      <div class="fg"><label for="u">شناسه</label><input id="u" class="in" required autocomplete="off" dir="ltr"></div>
+      <div class="fg"><label for="p">رمز</label><input id="p" type="password" class="in" required autocomplete="off" dir="ltr"></div>
+      <button class="btn" style="width:100%;background:#000;color:#fff;padding:14px">ورود ←</button>
+    </form>
+  </div></section>
+
+  <!-- دانش‌آموز -->
+  <section id="stu" class="hidden">
+    <span class="pill">آزمون‌ها</span>
+    <h2 style="font-size:30px;margin:12px 0 18px">آزمون‌های من</h2>
+    <div id="exList"></div>
+    <div class="card"><h3 style="margin-bottom:6px">روند درصدهای من</h3><p class="mut" style="margin-bottom:12px">هر ستون یه آزمونه؛ هدف اینه که ستون‌ها هفته‌به‌هفته بالاتر برن.</p>
+      <div class="chartw"><canvas id="stuCh"></canvas><p id="stuE" class="mut hidden" style="position:absolute;inset:0;display:grid;place-items:center">هنوز آزمونی نداده‌ای.</p></div></div>
+  </section>
+
+  <!-- آزمون -->
+  <section id="exam" class="hidden">
+    <div class="card row" style="padding:14px 20px">
+      <div><h3 id="exT"></h3><span class="mut" id="exU"></span></div>
+      <div class="row" style="gap:14px"><div class="timer" id="tm">00:00</div><span class="tag" id="prog"></span><button class="btn red" id="fin" onclick="finish(false)">پایان آزمون</button></div>
     </div>
-  </header>
-
-  <main class="view-container">
-
-    <!-- ۱. فرم ورود -->
-    <div id="login-view">
-      <div class="login-box">
-        <h2 style="font-weight: 900; margin-bottom: 6px;">ورود به آزمون</h2>
-        <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 24px;">شناسه و رمز عبور خود را وارد کنید</p>
-
-        <form id="login-form">
-          <div class="form-group">
-            <label for="username-input">شناسه کاربری</label>
-            <input type="text" id="username-input" class="form-control" required autofocus autocomplete="off">
-          </div>
-          <div class="form-group">
-            <label for="password-input">رمز عبور</label>
-            <input type="password" id="password-input" class="form-control" required autocomplete="off">
-          </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
-            ورود به سامانه
-          </button>
-        </form>
-      </div>
+    <div class="split">
+      <div class="box"><div class="top"><span>دفترچه سوال‌ها</span><span style="display:flex;gap:16px"><a id="dl" download>دانلود ⬇</a><a id="op" target="_blank" rel="noopener">باز کردن جدا ↗</a></span></div>
+        <iframe id="pdfF" class="pdfF" title="دفترچه آزمون"></iframe>
+        <p class="mut" style="padding:12px 18px;font-size:12px">اگه دفترچه توی گوشی (به‌خصوص آیفون) باز نشد، «باز کردن جدا» رو بزن و برای جواب دادن برگرد همین‌جا.</p></div>
+      <div class="box" id="omrBox"><div class="top"><span>پاسخ‌برگ</span></div><div class="omr" id="omr"></div></div>
     </div>
-
-    <!-- ۲. داشبورد دانش‌آموز -->
-    <div id="student-view" class="hidden">
-      <div class="card">
-        <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px;">آزمون‌های فعال</h2>
-        <div id="student-exam-card" style="border: 1px solid var(--border); padding: 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--slate-800);">آزمون هفته دوم</h3>
-            <p style="font-size: 0.85rem; color: var(--slate-600); margin-top: 4px;">آزمون سه‌درس | مدت زمان: ۴۵ دقیقه | ۳۶ سوال | دارای نمره منفی</p>
-          </div>
-          <div id="student-exam-action">
-            <!-- دکمه ورود به آزمون یا مشاهده کارنامه -->
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 14px;">📊 نمودار و تحلیل وضعیت</h3>
-        <div class="chart-wrap">
-          <canvas id="student-chart"></canvas>
-          <p id="student-chart-empty" class="chart-empty hidden">هنوز داده‌ای برای نمایش وجود ندارد.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ⚠️ نام دفترچه با هر آزمون شماره‌گذاری می‌شود (question4.pdf ، question4.pdf ، ...)
-       تا مرورگر دانش‌آموزان به‌خاطر کش، دفترچه آزمون قبلی را نشان ندهد.
-       برای آزمون بعدی: فایل PDF را question4.pdf نام‌گذاری و در همین فایل، نام را عوض کنید. -->
-
-  <!-- ۳. محیط برگزاری آزمون -->
-    <div id="exam-view" class="hidden">
-      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; flex-wrap: wrap; gap: 10px;">
-        <div>
-          <h3 style="font-size: 1.1rem; font-weight: 800;">آزمون سه‌درس</h3>
-          <span style="font-size: 0.82rem; color: var(--slate-600);">کاربر: <b id="exam-user-label"></b></span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-          <div><div id="exam-phase-display" style="font-size:0.78rem;font-weight:800;color:var(--slate-600);text-align:center;margin-bottom:3px;">مرحله زیست</div><div class="timer-badge" id="exam-timer-display" aria-live="polite">90:00</div></div>
-          <button class="btn btn-danger" onclick="finishExam()">ثبت نهایی و پایان آزمون</button>
-        </div>
-      </div>
-
-      <div class="exam-split">
-        <!-- نمایشگر PDF دفترچه سوالات -->
-        <div class="pdf-viewer-box">
-          <div class="pdf-viewer-top">
-            <span style="font-weight: 700; font-size: 0.88rem;">دفترچه سوالات PDF</span>
-            <span style="display:flex; gap:14px;">
-              <a href="question4.pdf" download="question4.pdf" style="color: var(--primary); font-weight: 700; text-decoration: none; font-size: 0.85rem;">دانلود دفترچه ⬇</a>
-              <a href="question4.pdf" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 700; text-decoration: none; font-size: 0.85rem;">باز کردن در صفحه جداگانه ↗</a>
-            </span>
-          </div>
-          <iframe id="pdf-frame" class="pdf-frame" src="question4.pdf" title="دفترچه سوالات آزمون"></iframe>
-          <div id="pdf-fallback" class="pdf-fallback hidden">
-            ⚠️ نمایش داخلی فایل <b>question4.pdf</b> در دسترس نیست (فایل وجود ندارد یا مرورگر شما از نمایش PDF پشتیبانی نمی‌کند — به‌خصوص Safari در iOS).<br>
-            لطفاً از لینک‌های «دانلود دفترچه» یا «باز کردن در صفحه جداگانه» در بالای همین بخش استفاده کنید.
-          </div>
-        </div>
-
-        <!-- پاسخ‌برگ OMR -->
-        <div class="omr-box" id="omr-box">
-          <div style="border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <span style="font-weight: 800;">پاسخ‌برگ ۳۶ سوال</span>
-            <span class="progress-badge" id="omr-progress">پاسخ‌داده: ۰ از ۵۱</span>
-          </div>
-          <div id="omr-list"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ۴. کارنامه آزمون -->
-    <div id="report-view" class="hidden">
-      <div id="report-actions" class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <button class="btn btn-secondary" onclick="backToPanel()">بازگشت</button>
-        <button class="btn btn-primary" onclick="downloadReportPdf()">دریافت کارنامه بصورت PDF</button>
-      </div>
-
-      <div id="report-printable" class="card">
-        <div style="background: linear-gradient(135deg, #3730a3, #4338ca); color: white; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <h2 style="font-size: 1.4rem; font-weight: 900;">کارنامه آزمون سه‌درس</h2>
-            <p id="rep-student-info" style="font-size: 0.88rem; margin-top: 4px; opacity: 0.9;"></p>
-          </div>
-          <div style="text-align: left; background: rgba(255,255,255,0.2); padding: 10px 18px; border-radius: 10px;">
-            <div style="font-size: 0.8rem;">درصد تراز شده</div>
-            <div id="rep-total-percent" style="font-size: 2rem; font-weight: 900;">0%</div>
-            <div id="rep-percent-warn" class="hidden" style="font-size: 0.72rem; margin-top: 4px;">⚠ درصد منفی</div>
-          </div>
-        </div>
-
-        <div class="stat-grid">
-          <div class="stat-card">
-            <span style="font-size: 0.85rem; color: var(--slate-600);">تعداد کل سوالات</span>
-            <div id="rep-total-count" style="font-size: 1.6rem; font-weight: 900;">۳۶</div>
-          </div>
-          <div class="stat-card">
-            <span style="font-size: 0.85rem; color: #10b981;">پاسخ صحیح</span>
-            <div id="rep-correct-count" style="font-size: 1.6rem; font-weight: 900; color: #10b981;">0</div>
-          </div>
-          <div class="stat-card">
-            <span style="font-size: 0.85rem; color: #ef4444;">پاسخ غلط</span>
-            <div id="rep-wrong-count" style="font-size: 1.6rem; font-weight: 900; color: #ef4444;">0</div>
-          </div>
-          <div class="stat-card">
-            <span style="font-size: 0.85rem; color: #64748b;">نزده / سفید</span>
-            <div id="rep-unans-count" style="font-size: 1.6rem; font-weight: 900; color: #64748b;">0</div>
-          </div>
-          <div class="stat-card">
-            <span style="font-size: 0.85rem; color: var(--slate-600);">زمان صرف‌شده</span>
-            <div id="rep-duration" style="font-size: 1.1rem; font-weight: 900; margin-top: 6px;">—</div>
-          </div>
-        </div>
-
-        <h4 style="font-size: 1rem; font-weight: 800; margin: 24px 0 10px 0;">درصد هر درس:</h4>
-        <div id="rep-subject-stats" class="stat-grid" style="margin-top: 10px;"></div>
-
-        <h4 style="font-size: 1rem; font-weight: 800; margin: 20px 0 10px 0;">وضعیت تک‌تک سوالات:</h4>
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>درس</th>
-              <th>سوال</th>
-              <th>پاسخ شما</th>
-              <th>پاسخ صحیح</th>
-              <th>وضعیت</th>
-            </tr>
-          </thead>
-          <tbody id="rep-questions-body"></tbody>
-        </table>
-
-        <div class="info-box">
-          <b>راهنمای محاسبه نمره:</b>
-          هر پاسخ صحیح <b>۳ نمره مثبت</b>، هر پاسخ غلط <b>۱ نمره منفی</b> و هر سوال بدون پاسخ، نمره‌ای ندارد.<br>
-          فرمول درصد کل با نمره منفی: <b>درصد = (تعداد صحیح × ۳ − تعداد غلط) ÷ ۱۰۸ × ۱۰۰</b><br>
-          
-          درصد بدون نمره منفی: <b>تعداد صحیح ÷ تعداد کل سوالات × ۱۰۰</b>
-        </div>
-      </div>
-    </div>
-
-    <!-- ۵. پنل مدیریت استاد -->
-    <div id="admin-view" class="hidden">
-      <div class="card">
-        <h2 id="admin-title" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 16px;">پنل مدیریت استاد</h2>
-        <div style="margin-bottom: 20px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
-          <label for="admin-user-filter" style="font-weight: 700;">فیلتر نتایج بر اساس کاربر:</label>
-          <select id="admin-user-filter" class="form-control" style="width: 220px;" onchange="renderAdminList()">
-            <option value="ALL">همه کاربران</option>
-          </select>
-
-          <label for="admin-sort-select" style="font-weight: 700;">مرتب‌سازی:</label>
-          <select id="admin-sort-select" class="form-control" style="width: 180px;" onchange="renderAdminList()">
-            <option value="date_desc">جدیدترین اول</option>
-            <option value="date_asc">قدیمی‌ترین اول</option>
-            <option value="percent_desc">درصد: زیاد به کم</option>
-            <option value="percent_asc">درصد: کم به زیاد</option>
-          </select>
-        </div>
-
-        <div class="chart-wrap" style="margin-bottom: 24px;">
-          <canvas id="admin-chart"></canvas>
-          <p id="admin-chart-empty" class="chart-empty hidden">داده‌ای برای نمایش وجود ندارد.</p>
-        </div>
-
-        <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 10px;">سوابق شرکت در آزمون:</h3>
-        <div id="admin-results-table"></div>
-      </div>
-    </div>
-
-  </main>
-
-  <script>
-    'use strict';
-
-    /* =============================================================
-       ⚠️ هشدار امنیتی مهم (حتماً قبل از انتشار عمومی بخوانید):
-       نسخه فعلی یک برنامه «فقط-کلاینت» است و ذاتاً موارد زیر در آن
-       قابل رفع کامل نیست و باید به بک‌اند (Node/Express + دیتابیس)
-       منتقل شود:
-       1) رمزهای عبور و کلید سوالات در سورس قابل مشاهده‌اند.
-       2) نتایج در localStorage مرورگر هر کاربر ذخیره می‌شود و بین
-          دستگاه‌ها به اشتراک گذاشته نمی‌شود.
-       اصلاحات این نسخه: جلوگیری از Prototype Pollution، جلوگیری از XSS،
-       مدیریت صحیح خطاهای async ایمیل، و سایر باگ‌های منطقی/UX.
-       ============================================================= */
-
-    // اطلاعات کاربران (⚠️ فقط برای تست — در پروژه واقعی باید سمت سرور و با bcrypt باشد)
-    const USERS = {
-      'STI': { pass: '1234', role: 'student', name: 'دانش‌آموز STI' },
-      'T': { pass: 'T', role: 'student', name: 'کاربر آزمایشی (T)' },
-      'qwerty': { pass: '1234', role: 'admin', name: 'استاد / مدیر آزمون' }
-    };
-
-    // کلید آزمون سه‌درس — شماره‌گذاری هر بخش مطابق دفترچه question4.pdf
-    const QUESTION_SUBJECTS = {
-      زیست: [
-        { id: 'bio25', label: 25, key: 4 }, { id: 'bio26', label: 26, key: 3 }, { id: 'bio27', label: 27, key: 4 }, { id: 'bio28', label: 28, key: 4 }, { id: 'bio29', label: 29, key: 2 }, { id: 'bio30', label: 30, key: 3 }, { id: 'bio31', label: 31, key: 1 }, { id: 'bio32', label: 32, key: 4 }, { id: 'bio33', label: 33, key: 3 }, { id: 'bio34', label: 34, key: 3 }, { id: 'bio35', label: 35, key: 2 }, { id: 'bio36', label: 36, key: 1 }, { id: 'bio37', label: 37, key: 2 }, { id: 'bio38', label: 38, key: 2 }, { id: 'bio39', label: 39, key: 3 }, { id: 'bio40', label: 40, key: 2 }, { id: 'bio41', label: 41, key: 1 }, { id: 'bio42', label: 42, key: 2 }, { id: 'bio43', label: 43, key: 2 }, { id: 'bio44', label: 44, key: 2 }, { id: 'bio45', label: 45, key: 2 }
-      ],
-      فیزیک: [
-        { id: 'physics30', label: 30, key: 3 }, { id: 'physics31', label: 31, key: 2 }, { id: 'physics32', label: 32, key: 2 }
-      ],
-      شیمی: [
-        { id: 'chem89', label: 89, key: 4 }, { id: 'chem90', label: 90, key: 4 }, { id: 'chem91', label: 91, key: 3 }, { id: 'chem92', label: 92, key: 4 }, { id: 'chem93', label: 93, key: 3 }, { id: 'chem94', label: 94, key: 1 }, { id: 'chem95', label: 95, key: 4 }, { id: 'chem96', label: 96, key: 2 }, { id: 'chem97', label: 97, key: 4 }, { id: 'chem98', label: 98, key: 4 }, { id: 'chem99', label: 99, key: 4 }, { id: 'chem100', label: 100, key: 4 }
-      ]
-    };
-    const QUESTION_ITEMS = Object.entries(QUESTION_SUBJECTS).flatMap(([subject, questions]) => questions.map(q => ({ ...q, subject })));
-    const EXAM_KEYS = Object.fromEntries(QUESTION_ITEMS.map(q => [q.id, q.key]));
-    const EXAM_ID = 'question4_three_subjects_36q';
-    const TOTAL_Q = QUESTION_ITEMS.length;
-    const EXAM_DURATION_SEC = 45 * 60;
-    const PHASES = [{ name: 'آزمون سه‌درس', seconds: 45 * 60 }];
-
-    const STORAGE = {
-      subs: 'azm_subs_final',
-      session: 'azm_session',
-      progress: 'azm_exam_progress',
-      tabLock: 'azm_exam_tab'
-    };
-
-    const TAB_ID = 'tab_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-
-    let currentUser = null;
-    let studentAnswers = {};
-    let timerInterval = null;
-    let autosaveInterval = null;
-    let timeLeft = EXAM_DURATION_SEC;
-    let examDeadline = null;
-    let examPhaseStartedAt = null;   // زمان مطلق پایان (Date.now() + 20min) — مقاوم در برابر throttle شدن تب
-    let examStartedAt = null;
-    let examSubmitted = false;
-    let examActive = false;
-    let currentReportUser = null; // کاربرِ کارنامه‌ای که الان باز است (برای نام فایل PDF)
-    let adminChart = null;
-    let studentChart = null;
-
-    /* ---------------- ابزارهای کمکی ---------------- */
-
-    function escapeHtml(v) {
-      return String(v ?? '').replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[c]));
-    }
-
-    function faNum(n) {
-      try { return Number(n).toLocaleString('fa-IR'); } catch (e) { return String(n); }
-    }
-
-    function fmtDuration(sec) {
-      if (sec == null || isNaN(sec)) return '—';
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return `${faNum(m)} دقیقه و ${faNum(s)} ثانیه`;
-    }
-
-    function getSubs() {
-      try {
-        const arr = JSON.parse(localStorage.getItem(STORAGE.subs) || '[]');
-        return Array.isArray(arr) ? arr : [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function setSubs(arr) {
-      localStorage.setItem(STORAGE.subs, JSON.stringify(arr));
-    }
-
-    function hideAllViews() {
-      ['login-view', 'student-view', 'exam-view', 'admin-view', 'report-view']
-        .forEach(id => document.getElementById(id).classList.add('hidden'));
-    }
-
-    /* ---------------- ذخیره/بازیابی وضعیت (رفرش = از دست نرفتن آزمون) ---------------- */
-
-    function saveProgress() {
-      if (!currentUser || examSubmitted) return;
-      try {
-        localStorage.setItem(STORAGE.progress, JSON.stringify({
-          username: currentUser.username,
-          examId: EXAM_ID,
-          answers: { ...studentAnswers },
-          examDeadline,
-          examStartedAt,
-          examPhaseStartedAt,
-          savedAt: Date.now()
-        }));
-      } catch (e) { /* حافظه پر است — نادیده بگیر */ }
-    }
-
-    function loadProgress() {
-      try {
-        const p = JSON.parse(localStorage.getItem(STORAGE.progress) || 'null');
-        // فقط پیش‌نویس همین نسخه آزمون معتبر است؛ پیش‌نویس‌های قدیمی پاک می‌شوند
-        if (!p || p.examId !== EXAM_ID || !p.username || !p.examDeadline) {
-          if (p) clearProgress();
-          return null;
-        }
-        return p;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function clearProgress() {
-      localStorage.removeItem(STORAGE.progress);
-    }
-
-    function saveSession() {
-      if (!currentUser) return;
-      localStorage.setItem(STORAGE.session, JSON.stringify({ username: currentUser.username }));
-    }
-
-    function clearSession() {
-      localStorage.removeItem(STORAGE.session);
-    }
-
-    /* ---------------- قفل چند-تبی (جلوگیری از باز کردن آزمون در چند تب) ---------------- */
-
-    function claimExamTab() {
-      try {
-        localStorage.setItem(STORAGE.tabLock, JSON.stringify({ id: TAB_ID, ts: Date.now() }));
-      } catch (e) {}
-    }
-
-    function releaseExamTab() {
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE.tabLock) || 'null');
-        if (cur && cur.id === TAB_ID) localStorage.removeItem(STORAGE.tabLock);
-      } catch (e) {}
-    }
-
-    function lockExamUi() {
-      if (timerInterval) clearInterval(timerInterval);
-      if (autosaveInterval) clearInterval(autosaveInterval);
-      timerInterval = autosaveInterval = null;
-      examActive = false;
-      document.getElementById('omr-box').classList.add('exam-locked');
-      const finishBtn = document.querySelector('#exam-view .btn-danger');
-      if (finishBtn) {
-        finishBtn.disabled = true;
-        finishBtn.innerText = 'آزمون در تب دیگری فعال است';
-      }
-      document.getElementById('exam-timer-display').innerText = 'قفل‌شده';
-      document.getElementById('exam-timer-display').classList.add('timer-danger');
-    }
-
-    window.addEventListener('storage', function (e) {
-      if (e.key !== STORAGE.tabLock || !e.newValue) return;
-      try {
-        const v = JSON.parse(e.newValue);
-        if (v.id !== TAB_ID && examActive && !examSubmitted) {
-          alert('این آزمون در تب دیگری در حال برگزاری است. برای جلوگیری از تقلب، این تب قفل شد.');
-          lockExamUi();
-        }
-      } catch (err) {}
-    });
-
-    /* ---------------- ورود / خروج ---------------- */
-
-    document.getElementById('login-form').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const u = document.getElementById('username-input').value.trim();
-      const p = document.getElementById('password-input').value.trim();
-
-      // ✅ بررسی امن با hasOwnProperty (رفع Prototype Pollution مثل "constructor")
-      if (Object.prototype.hasOwnProperty.call(USERS, u) && USERS[u].pass === p) {
-        currentUser = { username: u, ...USERS[u] };
-        examSubmitted = false;
-        saveSession();
-
-        document.getElementById('login-view').classList.add('hidden');
-        document.getElementById('user-header-info').classList.remove('hidden');
-        document.getElementById('header-user-display').innerText = currentUser.name;
-
-        if (currentUser.role === 'admin') {
-          showAdmin();
-        } else {
-          // اگر آزمون نیمه‌کاره وجود دارد، همان را ادامه بده
-          const draft = loadProgress();
-          if (draft && draft.username === currentUser.username) {
-            if (confirm('آزمون نیمه‌کاره‌ای دارید. آیا می‌خواهید ادامه دهید؟\n(در صورت انصراف، پاسخ‌های ذخیره‌شده تا شروع مجدد باقی می‌مانند)')) {
-              startExam();
-              return;
-            }
-          }
-          showStudent();
-        }
-      } else {
-        alert('شناسه یا رمز عبور اشتباه است! لطفاً دوباره بررسی کنید.');
-      }
-    });
-
-    function logout() {
-      if (timerInterval) clearInterval(timerInterval);
-      if (autosaveInterval) clearInterval(autosaveInterval);
-      timerInterval = autosaveInterval = null;
-      releaseExamTab();
-      // پیش‌نویس آزمون عمداً پاک نمی‌شود تا با ورود مجدد قابل ادامه باشد
-      examActive = false;
-      currentUser = null;
-      clearSession();
-      document.getElementById('user-header-info').classList.add('hidden');
-      document.getElementById('omr-box').classList.remove('exam-locked');
-      const finishBtn = document.querySelector('#exam-view .btn-danger');
-      if (finishBtn) {
-        finishBtn.disabled = false;
-        finishBtn.innerText = 'ثبت نهایی و پایان آزمون';
-      }
-      document.getElementById('exam-timer-display').classList.remove('timer-danger');
-      hideAllViews();
-      document.getElementById('login-view').classList.remove('hidden');
-      document.getElementById('login-form').reset();
-    }
-
-    /* ---------------- بخش دانش‌آموز ---------------- */
-
-    function showStudent() {
-      hideAllViews();
-      document.getElementById('student-view').classList.remove('hidden');
-
-      const subs = getSubs();
-      // فقط سوابق همین نسخه آزمون (سوابق آزمون‌های قبلی به دانش‌آموز نمایش داده نمی‌شود)
-      const mine = subs.filter(s => s.username === currentUser.username && s.examId === EXAM_ID);
-      const userSub = mine.length ? mine[mine.length - 1] : null; // ✅ آخرین (جدیدترین) رکورد
-      const draft = loadProgress();
-      const hasDraft = draft && draft.username === currentUser.username;
-
-      const actionArea = document.getElementById('student-exam-action');
-      if (hasDraft) {
-        actionArea.innerHTML = `
-          <button class="btn btn-primary" onclick="startExam()">ادامه آزمون نیمه‌کاره</button>
-          <span style="font-size:0.75rem; color:#b45309; display:block; text-align:center; margin-top:4px;">(پاسخ‌های شما ذخیره شده است)</span>
-        `;
-      } else if (userSub) {
-        actionArea.innerHTML = `
-          <button class="btn btn-secondary" onclick="viewResult()">مشاهده کارنامه</button>
-          <span style="font-size:0.75rem; color:#ef4444; display:block; text-align:center; margin-top:4px;">(تکمیل شده)</span>
-        `;
-      } else {
-        actionArea.innerHTML = `
-          <button class="btn btn-primary" onclick="startExam()">ورود به آزمون</button>
-        `;
-      }
-
-      drawChart(mine, 'student-chart');
-    }
-
-    function startExam() {
-      if (!currentUser || currentUser.role !== 'student') return;
-
-      const draft = loadProgress();
-      if (draft && draft.username === currentUser.username && draft.examDeadline) {
-        // ✅ ادامه آزمون نیمه‌کاره (رفرش/بستن تب باعث از دست رفتن پاسخ‌ها نمی‌شود)
-        studentAnswers = draft.answers || {};
-        examDeadline = draft.examDeadline;
-        examStartedAt = draft.examStartedAt || Date.now();
-        examPhaseStartedAt = draft.examPhaseStartedAt || examStartedAt;
-      } else {
-        studentAnswers = {};
-        examStartedAt = Date.now();
-        examPhaseStartedAt = examStartedAt;
-        examDeadline = Date.now() + EXAM_DURATION_SEC * 1000; // ✅ ددلاین مطلق
-        saveProgress();
-      }
-      examSubmitted = false;
-
-      hideAllViews();
-      document.getElementById('exam-view').classList.remove('hidden');
-      document.getElementById('exam-user-label').innerText = currentUser.name;
-      document.getElementById('omr-box').classList.remove('exam-locked');
-      const finishBtn = document.querySelector('#exam-view .btn-danger');
-      if (finishBtn) {
-        finishBtn.disabled = false;
-        finishBtn.innerText = 'ثبت نهایی و پایان آزمون';
-      }
-
-      renderOmr();
-      updateProgressBadge();
-      claimExamTab();
-      startTimerLoop();
-      checkPdfAvailability();
-    }
-
-    function getPhaseInfo() {
-      const elapsed = Math.max(0, Math.min(EXAM_DURATION_SEC, Math.floor((Date.now() - examStartedAt) / 1000)));
-      let passed = 0;
-      for (let i = 0; i < PHASES.length; i++) {
-        const phase = PHASES[i];
-        if (elapsed < passed + phase.seconds) {
-          return { index: i, phase, remaining: passed + phase.seconds - elapsed };
-        }
-        passed += phase.seconds;
-      }
-      return { index: PHASES.length - 1, phase: PHASES[PHASES.length - 1], remaining: 0 };
-    }
-
-    function updatePhaseDisplay() {
-      const info = getPhaseInfo();
-      const el = document.getElementById('exam-phase-display');
-      if (el) el.innerText = `مرحله ${info.phase.name}`;
-    }
-
-    function startTimerLoop() {
-      if (timerInterval) clearInterval(timerInterval);
-      if (autosaveInterval) clearInterval(autosaveInterval);
-      examActive = true;
-      timerInterval = setInterval(() => {
-        timeLeft = Math.max(0, Math.round((examDeadline - Date.now()) / 1000));
-        updateTimer();
-        updatePhaseDisplay();
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval); timerInterval = null;
-          alert('زمان ۹۰ دقیقه‌ای آزمون به پایان رسید!');
-          finishExam(true);
-        }
-      }, 250);
-      autosaveInterval = setInterval(saveProgress, 15000);
-      timeLeft = Math.max(0, Math.round((examDeadline - Date.now()) / 1000));
-      updateTimer();
-      updatePhaseDisplay();
-      if (timeLeft <= 0) finishExam(true);
-    }
-
-    function renderOmr() {
-      const container = document.getElementById('omr-list');
-      container.innerHTML = '';
-
-      // پاسخ‌برگ به بخش‌های درسی واضح تقسیم می‌شود تا دانش‌آموز بداند
-      // هر شماره مربوط به کدام درس است.
-      const sections = [
-        { title: 'زیست‌شناسی', range: 'سوالات ۲۵ تا ۴۵ — ۲۱ تست', questions: QUESTION_SUBJECTS.زیست, color: '#059669', bg: '#ecfdf5' },
-        { title: 'فیزیک', range: 'سوالات ۳۰ تا ۳۲ — ۳ تست (شماره‌گذاری مستقل)', questions: QUESTION_SUBJECTS.فیزیک, color: '#2563eb', bg: '#eff6ff' },
-        { title: 'شیمی', range: 'سوالات ۸۹ تا ۱۰۰ — ۱۲ تست', questions: QUESTION_SUBJECTS.شیمی, color: '#d97706', bg: '#fffbeb' }
-      ];
-
-      for (const section of sections) {
-        const heading = document.createElement('div');
-        heading.style.cssText = `background:${section.bg};border:1px solid ${section.color}33;border-right:5px solid ${section.color};border-radius:10px;padding:10px 12px;margin:18px 0 10px;font-weight:900;color:${section.color};position:sticky;top:-18px;z-index:2;`;
-        heading.innerHTML = `<div style="font-size:1rem;">بخش ${section.title}</div><div style="font-size:.75rem;font-weight:700;margin-top:2px;opacity:.85;">${section.range}</div>`;
-        container.appendChild(heading);
-
-        for (const item of section.questions) {
-          const div = document.createElement('div');
-          div.className = 'omr-row';
-          div.innerHTML = `
-            <span style="font-weight:700;">سوال ${item.label}:</span>
-            <div style="display:flex; align-items:center;">
-              <button type="button" class="bubble-btn" id="q${item.id}_1" aria-label="سوال ${item.label}، گزینه ۱" aria-pressed="false" onclick="setAnswer('${item.id}', 1)">۱</button>
-              <button type="button" class="bubble-btn" id="q${item.id}_2" aria-label="سوال ${item.label}، گزینه ۲" aria-pressed="false" onclick="setAnswer('${item.id}', 2)">۲</button>
-              <button type="button" class="bubble-btn" id="q${item.id}_3" aria-label="سوال ${item.label}، گزینه ۳" aria-pressed="false" onclick="setAnswer('${item.id}', 3)">۳</button>
-              <button type="button" class="bubble-btn" id="q${item.id}_4" aria-label="سوال ${item.label}، گزینه ۴" aria-pressed="false" onclick="setAnswer('${item.id}', 4)">۴</button>
-              <button type="button" class="btn-clear-answer" aria-label="حذف پاسخ سوال ${item.label}" title="حذف پاسخ این سوال" onclick="clearAnswer('${item.id}')">✕ حذف</button>
-            </div>
-          `;
-          container.appendChild(div);
-          paintAnswer(item.id);
-        }
-      }
-    }
-
-    function paintAnswer(q) {
-      const choice = studentAnswers[q];
-      for (let c = 1; c <= 4; c++) {
-        const btn = document.getElementById(`q${q}_${c}`);
-        if (!btn) continue;
-        const on = (c === choice);
-        btn.classList.toggle('active', on);
-        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      }
-    }
-
-    function setAnswer(q, choice) {
-      if (examSubmitted || !examActive) return;
-      // ✅ کلیک مجدد روی همان گزینه = حذف پاسخ (امکان سفید کردن)
-      if (studentAnswers[q] === choice) {
-        delete studentAnswers[q];
-      } else {
-        studentAnswers[q] = choice;
-      }
-      paintAnswer(q);
-      updateProgressBadge();
-      saveProgress();
-    }
-
-    function clearAnswer(q) {
-      if (examSubmitted || !examActive) return;
-      delete studentAnswers[q];
-      paintAnswer(q);
-      updateProgressBadge();
-      saveProgress();
-    }
-
-    function updateProgressBadge() {
-      const answered = Object.keys(studentAnswers).filter(k => studentAnswers[k]).length;
-      document.getElementById('omr-progress').innerText = `پاسخ‌داده: ${faNum(answered)} از ${faNum(TOTAL_Q)}`;
-    }
-
-    function updateTimer() {
-      const m = Math.floor(timeLeft / 60);
-      const s = timeLeft % 60;
-      const el = document.getElementById('exam-timer-display');
-      el.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      el.classList.toggle('timer-danger', timeLeft <= 60);
-    }
-
-    function countUnanswered() {
-      let n = 0;
-      for (const item of QUESTION_ITEMS) {
-        if (!studentAnswers[item.id]) n++;
-      }
-      return n;
-    }
-
-    function finishExam(auto) {
-      // ✅ جلوگیری از ثبت دوباره (کلیک مضاعف یا فراخوانی دستی از کنسول)
-      if (examSubmitted || !currentUser) return;
-
-      if (!auto) {
-        const unanswered = countUnanswered();
-        const msg = unanswered > 0
-          ? `⚠️ توجه: ${faNum(unanswered)} سوال بدون پاسخ دارید.\nآیا از ثبت نهایی و پایان آزمون مطمئن هستید؟`
-          : 'آیا از ثبت نهایی و پایان آزمون مطمئن هستید؟';
-        if (!confirm(msg)) return;
-      }
-
-      examSubmitted = true;
-      examActive = false;
-      if (timerInterval) clearInterval(timerInterval);
-      if (autosaveInterval) clearInterval(autosaveInterval);
-      timerInterval = autosaveInterval = null;
-      releaseExamTab();
-
-      let correct = 0;
-      let wrong = 0;
-      let unans = 0;
-
-      for (const item of QUESTION_ITEMS) {
-        const ans = studentAnswers[item.id];
-        if (!ans) unans++;
-        else if (ans === EXAM_KEYS[item.id]) correct++;
-        else wrong++;
-      }
-
-      // محاسبه درصد کنکوری با نمره منفی: (صحیح * 3 - غلط) / (تعداد سوال * 3) * 100
-      let percent = Math.round(((correct * 3 - wrong) / (TOTAL_Q * 3)) * 100 * 10) / 10;
-
-      const now = Date.now();
-      const record = {
-        id: 'sub_' + now,
-        examId: EXAM_ID,
-        totalQ: TOTAL_Q,
-        username: currentUser.username,
-        name: currentUser.name,
-        date: new Date(now).toLocaleString('fa-IR'), // ✅ تاریخ + ساعت
-        ts: now,
-        correct,
-        wrong,
-        unans,
-        percent,
-        durationSec: Math.max(0, EXAM_DURATION_SEC - timeLeft), // ✅ زمان صرف‌شده
-        answers: { ...studentAnswers }
-      };
-
-      const subs = getSubs();
-      subs.push(record);
-      setSubs(subs);
-
-      clearProgress(); // پیش‌نویس مصرف شد
-
-      // ارسال خودکار به ایمیل (خطاهای async مدیریت می‌شود)
-      sendResultEmail(record);
-
-      hideAllViews();
-      renderReport(record);
-    }
-
-    function sendResultEmail(rec) {
-      // ✅ خطاهای async فقط با .catch قابل مدیریت‌اند (try/catch کافی نیست)
-      return fetch("https://formsubmit.co/ajax/gholamia692@gmail.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({
-          name: "سامانه آزمون آنلاین",
-          subject: `کارنامه آزمون سه‌درس: ${rec.name} (${rec.username})`,
-          message: `دانش‌آموز: ${rec.name} | درصد کل: ${rec.percent}% | صحیح: ${rec.correct} | غلط: ${rec.wrong} | سفید: ${rec.unans} | زمان: ${fmtDuration(rec.durationSec)}`
-        })
-      })
-        .then(res => {
-          if (!res.ok) console.warn('ارسال ایمیل ناموفق بود، وضعیت HTTP:', res.status);
-          return res;
-        })
-        .catch(err => console.warn('ارسال ایمیل ناموفق بود:', err));
-    }
-
-    function calculateSubjectStats(rec) {
-      return Object.entries(QUESTION_SUBJECTS).map(([subject, questions]) => {
-        let correct = 0, wrong = 0, unanswered = 0;
-        questions.forEach(q => {
-          const answer = rec.answers?.[q.id];
-          if (answer === undefined || answer === null) unanswered++;
-          else if (Number(answer) === EXAM_KEYS[q.id]) correct++;
-          else wrong++;
-        });
-        const total = questions.length;
-        const withNegative = ((correct * 3 - wrong) / (total * 3)) * 100;
-        const withoutNegative = (correct / total) * 100;
-        const round = value => Math.round(value * 10) / 10;
-        return { subject, total, correct, wrong, unanswered, withNegative: round(withNegative), withoutNegative: round(withoutNegative) };
-      });
-    }
-
-    function renderSubjectStats(rec) {
-      const container = document.getElementById('rep-subject-stats');
-      if (!container) return;
-      const colors = { زیست: '#059669', فیزیک: '#2563eb', شیمی: '#d97706', ریاضی: '#7c3aed' };
-      container.innerHTML = calculateSubjectStats(rec).map(stat => `
-        <div class="stat-card" style="text-align:right;border-top:4px solid ${colors[stat.subject] || 'var(--primary)'};">
-          <div style="font-size:1.05rem;font-weight:900;color:${colors[stat.subject] || 'var(--primary)'};margin-bottom:8px;">${stat.subject}</div>
-          <div style="font-size:.8rem;color:var(--slate-600);margin-bottom:5px;">${faNum(stat.total)} سوال | صحیح: ${faNum(stat.correct)} | غلط: ${faNum(stat.wrong)} | سفید: ${faNum(stat.unanswered)}</div>
-          <div style="display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--border);padding-top:7px;margin-top:7px;">
-            <span style="font-size:.8rem;color:var(--slate-600);">با نمره منفی</span>
-            <b style="color:${stat.withNegative < 0 ? '#b91c1c' : 'var(--slate-800)'};">${faNum(stat.withNegative)}٪</b>
-          </div>
-          <div style="display:flex;justify-content:space-between;gap:8px;margin-top:6px;">
-            <span style="font-size:.8rem;color:var(--slate-600);">بدون نمره منفی</span>
-            <b style="color:#059669;">${faNum(stat.withoutNegative)}٪</b>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderReport(rec) {
-      // ✅ ابتدا همه‌ی نماها (از جمله پنل ادمین) مخفی می‌شوند
-      hideAllViews();
-      document.getElementById('report-view').classList.remove('hidden');
-
-      currentReportUser = rec.username; // ✅ برای نام فایل PDF
-
-      document.getElementById('rep-student-info').innerText =
-        `دانش‌آموز: ${rec.name} (${rec.username}) | تاریخ: ${rec.date}`;
-      document.getElementById('rep-total-percent').innerText = `${rec.percent}%`;
-
-      // ✅ نمایش هشدار برای درصد منفی
-      const warnEl = document.getElementById('rep-percent-warn');
-      const totalEl = document.getElementById('rep-total-percent');
-      if (rec.percent < 0) {
-        warnEl.classList.remove('hidden');
-        totalEl.style.color = '#fecaca';
-      } else {
-        warnEl.classList.add('hidden');
-        totalEl.style.color = '';
-      }
-
-      document.getElementById('rep-correct-count').innerText = rec.correct;
-      document.getElementById('rep-wrong-count').innerText = rec.wrong;
-      document.getElementById('rep-unans-count').innerText = rec.unans;
-      document.getElementById('rep-duration').innerText = fmtDuration(rec.durationSec);
-      renderSubjectStats(rec);
-
-      // تعداد سوالات این رکورد (سوابق قدیمی ممکن است ۱۰ سواله باشند)
-      const nQ = rec.totalQ || TOTAL_Q;
-      document.getElementById('rep-total-count').innerText = faNum(nQ);
-
-      // ✅ جدول مرتب وضعیت سوالات (جایگزین گرید کوچک قبلی)
-      const tbody = document.getElementById('rep-questions-body');
-      tbody.innerHTML = '';
-      for (const item of QUESTION_ITEMS) {
-        const userA = rec.answers?.[item.id]; // ✅ optional chaining — داده خراب/قدیمی خطا نمی‌دهد
-        const keyA = EXAM_KEYS[item.id];
-        const isU = (userA === undefined || userA === null);
-        const isC = !isU && userA === keyA;
-
-        let badge = '<span class="badge-ok">صحیح</span>';
-        if (isU) badge = '<span class="badge-blank">سفید</span>';
-        else if (!isC) badge = '<span class="badge-wrong">غلط</span>';
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${escapeHtml(item.subject)}</td>
-          <td><b>${item.label}</b></td>
-          <td>${isU ? '—' : escapeHtml(userA)}</td>
-          <td>${escapeHtml(keyA)}</td>
-          <td>${badge}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    function viewResult() {
-      const subs = getSubs();
-      const mine = subs.filter(s => s.username === currentUser.username && s.examId === EXAM_ID);
-      const rec = mine.length ? mine[mine.length - 1] : null; // ✅ جدیدترین رکورد (نه قدیمی‌ترین)
-      if (rec) {
-        renderReport(rec);
-      } else {
-        alert('هنوز نتیجه‌ای برای شما ثبت نشده است.');
-      }
-    }
-
-    function backToPanel() {
-      document.getElementById('report-view').classList.add('hidden');
-      if (currentUser && currentUser.role === 'admin') showAdmin();
-      else if (currentUser) showStudent();
-      else logout();
-    }
-
-    function downloadReportPdf() {
-      const el = document.getElementById('report-printable');
-      // ✅ نام فایل بر اساس کاربرِ کارنامه، نه کاربرِ لاگین‌کرده
-      const uname = currentReportUser || (currentUser && currentUser.username) || 'unknown';
-      if (window.html2pdf) {
-        html2pdf().from(el).save(`karname_${uname}.pdf`);
-      } else {
-        window.print();
-      }
-    }
-
-    /* ---------------- بررسی وجود فایل PDF دفترچه ---------------- */
-
-    function checkPdfAvailability() {
-      const fallback = document.getElementById('pdf-fallback');
-      fallback.classList.add('hidden');
-      // فقط روی پروتکل http(s) قابل بررسی است (fetch روی file:// مسدود است)
-      if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
-      fetch('question4.pdf', { method: 'HEAD' })
-        .then(res => {
-          if (!res.ok) fallback.classList.remove('hidden');
-        })
-        .catch(() => fallback.classList.remove('hidden'));
-    }
-
-    /* ---------------- بخش ادمین ---------------- */
-
-    function showAdmin() {
-      hideAllViews();
-      document.getElementById('admin-view').classList.remove('hidden');
-      document.getElementById('admin-title').innerText = `پنل مدیریت استاد (${currentUser.username})`;
-      buildAdminFilter();
-      renderAdminList();
-    }
-
-    function buildAdminFilter() {
-      const sel = document.getElementById('admin-user-filter');
-      const prev = sel.value || 'ALL';
-      const subs = getSubs();
-
-      // ✅ ساخت پویای فیلتر از USERS و داده‌ها (دیگر hard-coded نیست)
-      const usersMap = new Map();
-      Object.keys(USERS).forEach(u => {
-        if (USERS[u].role !== 'admin') usersMap.set(u, USERS[u].name);
-      });
-      subs.forEach(s => {
-        if (!usersMap.has(s.username)) usersMap.set(s.username, s.name || s.username);
-      });
-
-      sel.innerHTML = '<option value="ALL">همه کاربران</option>';
-      usersMap.forEach((name, u) => {
-        const opt = document.createElement('option');
-        opt.value = u;
-        opt.textContent = `${name} (${u})`;
-        sel.appendChild(opt);
-      });
-
-      // حفظ انتخاب قبلی در صورت وجود
-      if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
-    }
-
-    function getSortedSubs(subs) {
-      const mode = document.getElementById('admin-sort-select').value;
-      const arr = subs.map((s, i) => ({ s, i }));
-      arr.sort((a, b) => {
-        switch (mode) {
-          case 'date_asc':
-            return (a.s.ts ?? a.i) - (b.s.ts ?? b.i);
-          case 'percent_desc':
-            return (b.s.percent ?? 0) - (a.s.percent ?? 0);
-          case 'percent_asc':
-            return (a.s.percent ?? 0) - (b.s.percent ?? 0);
-          case 'date_desc':
-          default:
-            return (b.s.ts ?? b.i) - (a.s.ts ?? a.i);
-        }
-      });
-      return arr.map(x => x.s);
-    }
-
-    function renderAdminList() {
-      const sel = document.getElementById('admin-user-filter').value;
-      let subs = getSubs();
-      if (sel !== 'ALL') subs = subs.filter(s => s.username === sel);
-      subs = getSortedSubs(subs);
-
-      // شماره تلاش هر کاربر بر اساس ترتیب زمانی (برای برچسب نمودار)
-      const attemptNo = {};
-      getSubs().slice().sort((a, b) => (a.ts ?? 0) - (b.ts ?? 0)).forEach(s => {
-        attemptNo[s.id] = (attemptNo[s.username] = (attemptNo[s.username] || 0) + 1);
-      });
-
-      const container = document.getElementById('admin-results-table');
-      if (subs.length === 0) {
-        container.innerHTML = '<p style="color:var(--slate-600); text-align:center; padding:16px;">هیچ سوابقی ثبت نشده است.</p>';
-      } else {
-        // ✅ escapeHtml برای جلوگیری از XSS در رندر لیست + کلیک امن از طریق data-id
-        container.innerHTML = subs.map(s => {
-          const neg = (s.percent ?? 0) < 0;
-          return `
-          <div style="background:#f8fafc; border:1px solid var(--border); padding:14px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <div>
-              <strong>${escapeHtml(s.name)} (${escapeHtml(s.username)})</strong>
-              <div style="font-size:0.82rem; color:var(--slate-600); margin-top:2px;">
-                درصد: <b style="${neg ? 'color:#b91c1c;' : ''}">${escapeHtml(s.percent)}%</b>
-                ${neg ? '<span class="badge-warn">⚠ منفی</span>' : ''}
-                | صحیح: ${escapeHtml(s.correct)} | غلط: ${escapeHtml(s.wrong)} | سفید: ${escapeHtml(s.unans)}
-                | زمان: ${escapeHtml(fmtDuration(s.durationSec))}
-              </div>
-              <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">${escapeHtml(s.date || '—')} | تلاش ${faNum(attemptNo[s.id] || 1)}</div>
-            </div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn btn-secondary btn-sm" data-report-id="${escapeHtml(s.id)}">کارنامه</button>
-              <button class="btn btn-danger btn-sm" data-reset-user="${escapeHtml(s.username)}">مجوز آزمون مجدد</button>
-            </div>
-          </div>
-        `;
-        }).join('');
-      }
-
-      drawChart(subs.map(s => ({
-        ...s,
-        _label: `${s.name} (تلاش ${attemptNo[s.id] || 1})`
-      })), 'admin-chart');
-    }
-
-    // کلیک‌های امن روی دکمه‌های تولیدشده (بدون تزریق onclick)
-    document.getElementById('admin-results-table').addEventListener('click', function (e) {
-      const repBtn = e.target.closest('[data-report-id]');
-      if (repBtn) {
-        const rec = getSubs().find(s => s.id === repBtn.getAttribute('data-report-id'));
-        if (rec) renderReport(rec);
-        return;
-      }
-      const rstBtn = e.target.closest('[data-reset-user]');
-      if (rstBtn) {
-        resetUser(rstBtn.getAttribute('data-reset-user'));
-      }
-    });
-
-    function resetUser(u) {
-      if (!confirm(`آیا مایل به حذف سوابق ${u} جهت شرکت مجدد در آزمون هستید؟`)) return;
-      let subs = getSubs();
-      subs = subs.filter(s => s.username !== u);
-      setSubs(subs);
-
-      // پیش‌نویس آزمون نیمه‌کاره آن کاربر هم پاک شود
-      const draft = loadProgress();
-      if (draft && draft.username === u) clearProgress();
-
-      buildAdminFilter();
-      renderAdminList();
-    }
-
-    /* ---------------- نمودار ---------------- */
-
-    function drawChart(subs, canvasId) {
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
-      const emptyEl = document.getElementById(canvasId + '-empty');
-
-      // ✅ اول destroy، بعد بررسی داده خالی (رفع باگ نمودار stale)
-      if (canvasId === 'admin-chart' && adminChart) { adminChart.destroy(); adminChart = null; }
-      if (canvasId === 'student-chart' && studentChart) { studentChart.destroy(); studentChart = null; }
-
-      if (!subs || subs.length === 0) {
-        ctx.style.display = 'none';
-        if (emptyEl) emptyEl.classList.remove('hidden');
-        return;
-      }
-      ctx.style.display = '';
-      if (emptyEl) emptyEl.classList.add('hidden');
-
-      if (typeof Chart === 'undefined') {
-        if (emptyEl) {
-          emptyEl.textContent = 'کتابخانه نمودار بارگذاری نشد (آفلاین؟).';
-          emptyEl.classList.remove('hidden');
-        }
-        ctx.style.display = 'none';
-        return;
-      }
-
-      const percents = subs.map(s => Number(s.percent) || 0);
-      // ✅ پشتیبانی از درصد منفی در مقیاس نمودار
-      const dataMin = Math.min(0, ...percents);
-      const yMin = dataMin < 0 ? Math.floor(dataMin / 5) * 5 - 5 : 0;
-
-      const chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          // ✅ برچسب‌های یکتا: نام + شماره تلاش (رفع تکرار برچسب‌ها)
-          labels: subs.map((s, i) => s._label || `${s.name} · تلاش ${i + 1}`),
-          datasets: [{
-            label: 'درصد کسب شده',
-            data: percents,
-            // میله‌های منفی قرمز
-            backgroundColor: percents.map(p => p < 0 ? 'rgba(239, 68, 68, 0.8)' : 'rgba(67, 56, 202, 0.8)'),
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { y: { min: yMin, max: 100 } },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (c) => ` درصد: ${c.parsed.y}%`
-              }
-            }
-          }
-        }
-      });
-
-      if (canvasId === 'admin-chart') adminChart = chart;
-      if (canvasId === 'student-chart') studentChart = chart;
-    }
-
-    /* ---------------- مقداردهی اولیه (بازیابی نشست پس از رفرش) ---------------- */
-
-    (function init() {
-      // بازیابی نشست کاربر بعد از refresh
-      try {
-        const sess = JSON.parse(localStorage.getItem(STORAGE.session) || 'null');
-        if (sess && Object.prototype.hasOwnProperty.call(USERS, sess.username)) {
-          currentUser = { username: sess.username, ...USERS[sess.username] };
-          document.getElementById('login-view').classList.add('hidden');
-          document.getElementById('user-header-info').classList.remove('hidden');
-          document.getElementById('header-user-display').innerText = currentUser.name;
-
-          const draft = loadProgress();
-          if (currentUser.role === 'student' && draft && draft.username === currentUser.username) {
-            // ✅ رفرش وسط آزمون: مستقیم ادامه‌ی آزمون (پاسخ‌ها و تایمر حفظ شده‌اند)
-            startExam();
-          } else if (currentUser.role === 'admin') {
-            showAdmin();
-          } else {
-            showStudent();
-          }
-        }
-      } catch (e) {
-        clearSession();
-      }
-    })();
-  </script>
+  </section>
+
+  <!-- کارنامه -->
+  <section id="rep" class="hidden">
+    <div class="row noprint" style="margin-bottom:16px"><button class="btn ghost" onclick="back()">← بازگشت</button><button class="btn gold" onclick="pdf()">دریافت کارنامه PDF ⬇</button></div>
+    <div id="paper" class="paper"></div>
+  </section>
+
+  <!-- مدیر -->
+  <section id="adm" class="hidden">
+    <span class="pill">پنل مدیریت</span><h2 style="font-size:30px;margin:12px 0 18px">نتایج آزمون‌ها</h2>
+    <div class="card"><div class="row" style="justify-content:flex-start">
+      <select id="fE" class="in" style="width:220px" onchange="admList()"></select>
+      <select id="fU" class="in" style="width:220px;" onchange="admList()"></select>
+      <button class="btn ghost sm" onclick="exportAll()">کپی همه‌ی کدها</button></div>
+      <div class="chartw" style="margin:18px 0"><canvas id="admCh"></canvas></div><div id="admT"></div></div>
+    <div class="card"><h3 style="margin-bottom:6px">وارد کردن نتیجه از کد دانش‌آموز</h3>
+      <p class="mut" style="margin-bottom:12px">هر دانش‌آموز بعد از آزمون یه «کد نتیجه» می‌گیره و برات ایمیل هم می‌شه. اون کدها رو این‌جا بچسبون (هر خط یه کد) تا توی لیست بالا بیان. نمره با کلید فعلی دوباره حساب می‌شه.</p>
+      <textarea id="imp" class="in" rows="4" dir="ltr" placeholder="کدها اینجا"></textarea>
+      <button class="btn gold" style="margin-top:12px" onclick="importCodes()">وارد کن</button></div>
+  </section>
+</main>
+
+<script src="config.js"></script>
+<script>
+'use strict';
+const C=window.AZMOON_CONFIG,$=id=>document.getElementById(id);
+const K={subs:'azm2_subs',sess:'azm2_sess',lock:'azm2_lock'},pk=(u,e)=>`azm2_p_${u}_${e}`,TAB='t'+Math.random().toString(36).slice(2);
+let me=null,ex=null,ans=[],deadline=0,started=0,active=false,tk=null,au=null,ch={},rec0=null;
+const fa=n=>Number(n).toLocaleString('fa-IR'),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rd=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},wr=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const enc=o=>btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o)))),dec=s=>JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(s.trim()),c=>c.charCodeAt(0))));
+const subs=()=>{const a=rd(K.subs,[]);return Array.isArray(a)?a:[]},exOf=id=>C.EXAMS.find(e=>e.id===id);
+const dur=s=>s==null?'—':`${fa(Math.floor(s/60))} دقیقه و ${fa(s%60)} ثانیه`;
+const show=id=>{['login','stu','exam','rep','adm'].forEach(x=>$(x).classList.toggle('hidden',x!==id));scrollTo(0,0)};
+
+/* ---------- سوال‌ها و نمره‌دهی ---------- */
+function qs(e){let n=0;return e.sections.flatMap(s=>{const L=s.labels||[...s.keys].map((_,i)=>s.start+i);return [...s.keys].map((k,i)=>({no:++n,label:L[i],subject:s.subject,color:s.color,key:k==='x'?0:+k}))})}
+function grade(e,a){
+  const S={},rows=qs(e).map((q,i)=>{const u=+a[i]||0,st=!q.key?'sk':!u?'bl':u===q.key?'ok':'bad';
+    const s=S[q.subject]||(S[q.subject]={subject:q.subject,color:q.color,t:0,c:0,w:0,b:0});
+    if(st!=='sk'){s.t++;st==='ok'?s.c++:st==='bad'?s.w++:s.b++}return{...q,u,st}});
+  const pc=(c,w,t)=>t?Math.round((e.negative===false?c/t*100:(c*3-w)/(t*3)*100)*10)/10:0,pn=(c,t)=>t?Math.round(c/t*1000)/10:0;
+  const subj=Object.values(S).map(s=>({...s,p:pc(s.c,s.w,s.t),pn:pn(s.c,s.t)}));
+  const T=subj.reduce((a,s)=>({t:a.t+s.t,c:a.c+s.c,w:a.w+s.w,b:a.b+s.b}),{t:0,c:0,w:0,b:0});
+  return{rows,subj,...T,p:pc(T.c,T.w,T.t),pn:pn(T.c,T.t)}}
+
+/* ---------- ورود / خروج ---------- */
+$('lf').addEventListener('submit',ev=>{ev.preventDefault();const u=$('u').value.trim(),p=$('p').value.trim();
+  if(Object.prototype.hasOwnProperty.call(C.USERS,u)&&C.USERS[u].pass===p){login(u,null)}else alert('شناسه یا رمز اشتباهه. دوباره امتحان کن.')});
+function login(u,exId){me={u,...C.USERS[u]};wr(K.sess,{u,ex:exId});$('hdUser').innerHTML=`<span style="font-size:13px;font-weight:700">${esc(me.name)}</span><button class="btn ghost sm" onclick="logout()">خروج</button>`;
+  if(me.role==='admin')return admin();
+  if(exId&&exOf(exId)&&rd(pk(u,exId),null))return start(exId);
+  student()}
+function logout(){clearInterval(tk);clearInterval(au);active=false;unlock();me=null;localStorage.removeItem(K.sess);$('hdUser').innerHTML='';$('lf').reset();show('login')}
+
+/* ---------- دانش‌آموز ---------- */
+function student(){
+  const mine=subs().filter(s=>s.user===me.u),list=C.EXAMS.filter(e=>!e.allowed||e.allowed.includes(me.u));
+  $('exList').innerHTML=list.map(e=>{const r=mine.find(s=>s.exam===e.id),d=rd(pk(me.u,e.id),null),q=qs(e).length;
+    let act=`<button class="btn gold" onclick="start('${e.id}')">ورود به آزمون ←</button>`,tag='باز';
+    if(r){act=`<button class="btn" onclick="viewRep('${e.id}')">مشاهده کارنامه</button>`+(e.retake&&e.retake.includes(me.u)?` <button class="btn ghost" onclick="start('${e.id}')">آزمون مجدد</button>`:'');tag='انجام شده'}
+    else if(d){act=`<button class="btn gold" onclick="start('${e.id}')">ادامه‌ی آزمون</button>`;tag='نیمه‌کاره'}
+    else if(e.status==='soon'){act='<span class="mut">به‌زودی باز می‌شه</span>';tag='به‌زودی'}
+    else if(e.status==='closed'){act='<span class="mut">مهلت تموم شده</span>';tag='بسته'}
+    return`<div class="ex ${e.status==='active'&&!r?'act':''}"><div class="row"><div><span class="tag ${r?'':'g'}">${tag}</span><h3 style="margin-top:10px;font-size:19px">${esc(e.title)}</h3><p class="mut">${esc(e.desc||'')} · ${fa(e.durationMin)} دقیقه · ${fa(q)} سوال${e.negative===false?'':' · نمره منفی دارد'}</p>${r?`<p class="mut">درصد تو: <b style="color:var(--acc)">${fa(grade(e,r.a).p)}٪</b></p>`:''}</div><div>${act}</div></div></div>`}).join('')||'<p class="mut">هنوز آزمونی برات تعریف نشده.</p>';
+  line(mine.filter(s=>exOf(s.exam)).map(s=>({l:exOf(s.exam).title,p:grade(exOf(s.exam),s.a).p})),'stuCh','stuE');show('stu')}
+
+function line(d,cv,em){const x=$(cv);ch[cv]&&ch[cv].destroy();ch[cv]=null;const e=$(em);
+  if(!d.length||typeof Chart==='undefined'){x.style.display='none';e&&e.classList.remove('hidden');return}
+  x.style.display='';e&&e.classList.add('hidden');const v=d.map(i=>i.p),mn=Math.min(0,...v);
+  ch[cv]=new Chart(x,{type:'bar',data:{labels:d.map(i=>i.l),datasets:[{data:v,backgroundColor:v.map(p=>p<0?'#ef4444':'#e8b84a'),borderRadius:8}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:mn<0?Math.floor(mn/10)*10:0,max:100,ticks:{color:'#a1a1aa'},grid:{color:'rgba(255,255,255,.08)'}},x:{ticks:{color:'#a1a1aa'},grid:{display:false}}},plugins:{legend:{display:false}}}})}
+
+/* ---------- برگزاری آزمون ---------- */
+function start(id){ex=exOf(id);if(!ex||!me)return;
+  let d=rd(pk(me.u,id),null);
+  if(d&&d.deadline){ans=d.ans||[];deadline=d.deadline;started=d.started}
+  else{if(ex.status!=='active')return alert('این آزمون الان باز نیست.');ans=[];started=Date.now();deadline=started+ex.durationMin*60000;save()}
+  wr(K.sess,{u:me.u,ex:id});
+  const Q=qs(ex);ans=Q.map((_,i)=>+ans[i]||0);
+  $('exT').textContent=ex.title;$('exU').textContent='دانش‌آموز: '+me.name;
+  const f=ex.pdf+'?v='+encodeURIComponent(ex.id);$('pdfF').src=f;$('dl').href=ex.pdf;$('op').href=ex.pdf;
+  $('omrBox').classList.remove('locked');$('fin').disabled=false;$('fin').textContent='پایان آزمون';$('tm').classList.remove('d');
+  let h='',cur='';Q.forEach(q=>{if(q.subject!==cur){cur=q.subject;h+=`<div class="sec" style="border-right-color:${q.color};color:${q.color}">${esc(cur)}</div>`}
+    h+=`<div class="q"><span>${fa(q.no)}<small>(دفترچه: ${fa(q.label)})</small></span><div style="display:flex;align-items:center">${[1,2,3,4].map(c=>`<button class="b grow" id="b${q.no-1}_${c}" onclick="pick(${q.no-1},${c})" aria-label="سوال ${q.no} گزینه ${c}">${fa(c)}</button>`).join('')}</div></div>`});
+  $('omr').innerHTML=h;ans.forEach((_,i)=>paint(i));prog();show('exam');
+  wr(K.lock,{id:TAB,ts:Date.now()});active=true;clearInterval(tk);clearInterval(au);tk=setInterval(tick,250);au=setInterval(save,15000);tick()}
+function save(){if(!me||!ex||!active)return;wr(pk(me.u,ex.id),{ans,deadline,started})}
+function pick(i,c){if(!active)return;ans[i]=ans[i]===c?0:c;paint(i);prog();save()}
+function paint(i){for(let c=1;c<=4;c++)$(`b${i}_${c}`).classList.toggle('on',ans[i]===c)}
+function prog(){$('prog').textContent=`پاسخ‌داده: ${fa(ans.filter(Boolean).length)} از ${fa(ans.length)}`}
+function tick(){const t=Math.max(0,Math.round((deadline-Date.now())/1000));$('tm').textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');$('tm').classList.toggle('d',t<=60);
+  if(t<=0){clearInterval(tk);alert('وقت آزمون تموم شد؛ پاسخ‌هات ثبت می‌شن.');finish(true)}}
+function finish(auto){if(!active&&!auto)return;
+  if(!auto){const n=ans.filter(a=>!a).length;if(!confirm((n?`${fa(n)} سوال رو نزدی. `:'')+'مطمئنی می‌خوای آزمون رو تموم کنی؟'))return}
+  active=false;clearInterval(tk);clearInterval(au);
+  const now=Date.now(),r={exam:ex.id,user:me.u,name:me.name,ts:now,dur:Math.min(ex.durationMin*60,Math.round((now-started)/1000)),a:ans.join('')};
+  const all=subs().filter(s=>!(s.user===r.user&&s.exam===r.exam));all.push(r);wr(K.subs,all);localStorage.removeItem(pk(me.u,ex.id));wr(K.sess,{u:me.u,ex:null});
+  const g=grade(ex,r.a);
+  fetch('https://formsubmit.co/ajax/'+C.EMAIL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({name:'سامانه آزمون',subject:`کارنامه ${ex.title}: ${me.name} (${me.u})`,message:`درصد: ${g.p}% | صحیح: ${g.c} | غلط: ${g.w} | نزده: ${g.b} | زمان: ${dur(r.dur)}\n\nکد نتیجه (برای پنل مدیریت):\n${enc(r)}`})}).catch(e=>console.warn('ایمیل ارسال نشد',e));
+  report(r)}
+
+/* ---------- قفل چند‌تبی ---------- */
+function unlock(){const l=rd(K.lock,null);if(l&&l.id===TAB)localStorage.removeItem(K.lock)}
+addEventListener('storage',e=>{if(e.key!==K.lock||!e.newValue||!active)return;try{if(JSON.parse(e.newValue).id!==TAB){active=false;clearInterval(tk);clearInterval(au);$('omrBox').classList.add('locked');$('fin').disabled=true;$('tm').textContent='قفل';alert('آزمون توی یه تب دیگه بازه، برای همین این تب قفل شد.')}}catch(x){}});
+
+/* ---------- کارنامه ---------- */
+function viewRep(id){const r=subs().find(s=>s.user===me.u&&s.exam===id);r?report(r):alert('نتیجه‌ای پیدا نشد.')}
+function report(r){const e=exOf(r.exam);if(!e)return alert('تعریف این آزمون پیدا نشد.');rec0=r;const g=grade(e,r.a),neg=e.negative!==false;
+  const bad={};g.rows.filter(q=>q.st==='bad'||q.st==='bl').forEach(q=>(bad[q.subject]=bad[q.subject]||[]).push(q.label));
+  $('paper').innerHTML=`
+  <div class="nb" style="background:#07070A;color:#fff;border-radius:20px;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div><div style="color:#e8b84a;font-size:12px;font-weight:900">علیرضا غلامی | مشاور تخصصی کنکور</div><h2 style="font-size:22px;margin:6px 0">کارنامه ${esc(e.title)}</h2><div style="font-size:12px;opacity:.7">${esc(r.name)} (${esc(r.user)}) · ${new Date(r.ts).toLocaleString('fa-IR')}</div></div>
+    <div style="background:#e8b84a;color:#000;border-radius:18px;padding:10px 22px;text-align:center"><div style="font-size:11px;font-weight:700">درصد کل ${neg?'(با نمره منفی)':''}</div><div style="font-size:34px;font-weight:900;direction:ltr">${fa(g.p)}٪</div></div></div>
+  <div class="grid nb"><div class="stat"><b>${fa(g.t)}</b><span>کل سوال‌ها</span></div><div class="stat"><b style="color:#16a34a">${fa(g.c)}</b><span>صحیح</span></div><div class="stat"><b style="color:#dc2626">${fa(g.w)}</b><span>غلط</span></div><div class="stat"><b>${fa(g.b)}</b><span>نزده</span></div><div class="stat"><b style="font-size:13px;margin:6px 0">${dur(r.dur)}</b><span>زمان</span></div></div>
+  <h3 style="font-size:15px;margin:18px 0 8px">درصد هر درس</h3>
+  <div class="grid nb" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">${g.subj.map(s=>`<div class="stat" style="text-align:right;border-top:4px solid ${s.color}"><b style="font-size:15px">${esc(s.subject)}</b><span>${fa(s.t)} سوال · صحیح ${fa(s.c)} · غلط ${fa(s.w)} · نزده ${fa(s.b)}</span>
+    <div class="bar"><i style="width:${Math.max(0,Math.min(100,s.p))}%;background:${s.color}"></i></div>
+    <div class="row" style="margin-top:8px;font-size:12px"><span>${neg?'با نمره منفی':'درصد'}</span><b style="${s.p<0?'color:#dc2626':''}">${fa(s.p)}٪</b></div>${neg?`<div class="row" style="font-size:12px"><span>بدون نمره منفی</span><b>${fa(s.pn)}٪</b></div>`:''}</div>`).join('')}</div>
+  <h3 style="font-size:15px;margin:18px 0 8px">برای مرور و رفع اشکال</h3>
+  <div class="nb" style="background:#fffbeb;border:1px solid #fde68a;border-radius:18px;padding:14px;font-size:13px;line-height:2.1">${Object.keys(bad).length?Object.entries(bad).map(([s,l])=>`<b>${esc(s)}:</b> سوال ${l.map(fa).join('، ')}`).join('<br>'):'همه‌ی سوال‌ها رو درست زدی. عالی بود!'}<br><span style="opacity:.6;font-size:12px">اینا غلط یا نزده بودن؛ قبل از جلسه‌ی بعد، علت هر کدوم رو بنویس.</span></div>
+  <h3 style="font-size:15px;margin:18px 0 8px">وضعیت تک‌تک سوال‌ها</h3>
+  <table><thead><tr><th>#</th><th>دفترچه</th><th>درس</th><th>پاسخ تو</th><th>پاسخ صحیح</th><th>وضعیت</th></tr></thead><tbody>${g.rows.map(q=>`<tr class="nb"><td>${fa(q.no)}</td><td>${fa(q.label)}</td><td>${esc(q.subject)}</td><td>${q.u?fa(q.u):'—'}</td><td>${q.key?fa(q.key):'حذف'}</td><td><span class="st ${q.st}">${{ok:'صحیح',bad:'غلط',bl:'نزده',sk:'حذف‌شده'}[q.st]}</span></td></tr>`).join('')}</tbody></table>
+  <div class="nb" style="margin-top:16px;background:#fafafa;border:1px solid #e4e4e7;border-radius:16px;padding:12px;font-size:12px;line-height:2">${neg?'هر پاسخ صحیح ۳ نمره‌ی مثبت، هر غلط ۱ نمره‌ی منفی و نزده صفره. <b>درصد = (صحیح × ۳ − غلط) ÷ (کل × ۳) × ۱۰۰</b>':'<b>درصد = صحیح ÷ کل × ۱۰۰</b>'}. این درصد خامه و تراز کنکور نیست.</div>
+  <div style="margin-top:14px;font-size:11px;opacity:.5;text-align:center">t.me/${esc(C.TELEGRAM)} · کارنامه‌ی سامانه آزمون</div>
+  ${me.role==='student'?`<div class="noprint nb" style="margin-top:16px;border:1px dashed #d4d4d8;border-radius:16px;padding:12px;font-size:12px;line-height:2">کد نتیجه (اگه ایمیل نرفت، برای مشاورت بفرست):<br><code dir="ltr" style="word-break:break-all;font-size:11px">${enc(r)}</code><br><button class="btn sm" style="background:#000;color:#fff;margin-top:6px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${enc(r)}');this.textContent='کپی شد ✓'">کپی کد</button></div>`:''}`;
+  show('rep')}
+async function pdf(){const el=$('paper');try{await document.fonts.ready;await html2pdf().set({margin:[8,6,8,6],filename:`karname_${rec0.user}_${rec0.exam}.pdf`,image:{type:'jpeg',quality:.98},
+  html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',windowWidth:820,onclone:d=>{const p=d.getElementById('paper');p.style.width='794px';p.style.borderRadius='0';d.querySelectorAll('.noprint').forEach(n=>n.remove())}},
+  jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['tr','.nb']}}).from(el).save()}catch(e){print()}}
+function back(){me&&me.role==='admin'?admin():student()}
+
+/* ---------- مدیر ---------- */
+function admin(){const ue=[...new Set([...Object.keys(C.USERS).filter(u=>C.USERS[u].role!=='admin'),...subs().map(s=>s.user)])];
+  $('fE').innerHTML='<option value="">همه‌ی آزمون‌ها</option>'+C.EXAMS.map(e=>`<option value="${esc(e.id)}">${esc(e.title)}</option>`).join('');
+  $('fU').innerHTML='<option value="">همه‌ی کاربرها</option>'+ue.map(u=>`<option value="${esc(u)}">${esc((C.USERS[u]||{}).name||u)}</option>`).join('');admList();show('adm')}
+function admList(){const fe=$('fE').value,fu=$('fU').value;
+  const L=subs().filter(s=>exOf(s.exam)&&(!fe||s.exam===fe)&&(!fu||s.user===fu)).sort((a,b)=>b.ts-a.ts).map(s=>({s,g:grade(exOf(s.exam),s.a)}));
+  $('admT').innerHTML=L.length?L.map(({s,g})=>`<div class="ex"><div class="row"><div><b>${esc(s.name)} (${esc(s.user)})</b> · ${esc(exOf(s.exam).title)}<p class="mut">درصد <b style="color:var(--acc)">${fa(g.p)}٪</b> · صحیح ${fa(g.c)} · غلط ${fa(g.w)} · نزده ${fa(g.b)} · ${dur(s.dur)} · ${new Date(s.ts).toLocaleString('fa-IR')}</p></div>
+    <div style="display:flex;gap:8px"><button class="btn sm" onclick="admRep('${esc(s.user)}','${esc(s.exam)}')">کارنامه</button><button class="btn red sm" onclick="admDel('${esc(s.user)}','${esc(s.exam)}')">حذف</button></div></div></div>`).join(''):'<p class="mut">نتیجه‌ای ثبت نشده. از کد دانش‌آموزها پایین وارد کن.</p>';
+  line(L.map(({s,g})=>({l:s.name+' · '+exOf(s.exam).title,p:g.p})),'admCh',null)}
+function admRep(u,e){const r=subs().find(s=>s.user===u&&s.exam===e);r&&report(r)}
+function admDel(u,e){if(!confirm('این نتیجه از همین مرورگر حذف بشه؟ (روی دستگاه دانش‌آموز تأثیری نداره)'))return;wr(K.subs,subs().filter(s=>!(s.user===u&&s.exam===e)));admList()}
+function importCodes(){let ok=0,bad=0;const all=subs();
+  $('imp').value.split(/\s+/).filter(Boolean).forEach(c=>{try{const r=dec(c);if(!exOf(r.exam)||!r.user||typeof r.a!=='string')throw 0;const i=all.findIndex(s=>s.user===r.user&&s.exam===r.exam);i>=0?all[i]=r:all.push(r);ok++}catch(e){bad++}});
+  wr(K.subs,all);$('imp').value='';alert(`${fa(ok)} نتیجه وارد شد${bad?` و ${fa(bad)} کد نامعتبر بود`:''}.`);admin()}
+function exportAll(){navigator.clipboard&&navigator.clipboard.writeText(subs().map(enc).join('\n'));alert('کدها کپی شد.')}
+
+/* ---------- شروع ---------- */
+(function(){const a=$('av'),i=new Image();i.onload=()=>{a.style.backgroundImage="url('alireza.jpg')";a.textContent=''};i.src='alireza.jpg';
+  $('siteLink').href=C.SITE_URL||'#';
+  const s=rd(K.sess,null);if(s&&Object.prototype.hasOwnProperty.call(C.USERS,s.u))login(s.u,s.ex)})();
+</script>
 </body>
 </html>
